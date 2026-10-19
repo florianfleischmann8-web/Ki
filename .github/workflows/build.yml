@@ -1,0 +1,409 @@
+name: Build Flora APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Flora-App schreiben (komplette KI steckt in index.html)
+        run: |
+          mkdir -p www
+          cat > www/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="de"><head><meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+          <meta name="theme-color" content="#07060f"><title>Flora</title>
+          <style>
+          :root{--bg:#07060f;--g:rgba(255,255,255,.06);--b:rgba(255,255,255,.12);--v:#8b5cf6;--c:#22d3ee;--p:#f472b6;--t:#ece9ff;--m:#9b97bd}
+          *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0}
+          html,body{height:100%;background:var(--bg);color:var(--t);font-family:system-ui,Roboto,sans-serif;overflow:hidden}
+          body:before,body:after{content:"";position:fixed;width:380px;height:380px;border-radius:50%;filter:blur(90px);opacity:.35;z-index:0;animation:fl 14s ease-in-out infinite alternate}
+          body:before{background:var(--v);top:-120px;left:-100px}body:after{background:var(--c);bottom:-140px;right:-120px;animation-delay:-7s}
+          @keyframes fl{to{transform:translate(60px,50px) scale(1.2)}}
+          #app{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+          header{display:flex;align-items:center;gap:12px;padding:14px 18px}
+          .orb{width:42px;height:42px;border-radius:50%;background:conic-gradient(from 0deg,var(--v),var(--c),var(--p),var(--v));animation:sp 5s linear infinite;box-shadow:0 0 24px var(--v);position:relative}
+          .orb:after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--bg)}
+          .orb.think{animation-duration:.9s;box-shadow:0 0 34px var(--c)}
+          @keyframes sp{to{transform:rotate(360deg)}}
+          h1{font-size:22px;letter-spacing:5px;background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;color:transparent}
+          header small{color:var(--m);font-size:12px}
+          main{flex:1;min-height:0;position:relative}
+          .tab{position:absolute;inset:0;display:none;flex-direction:column;padding:0 14px 8px;overflow-y:auto}
+          .tab.on{display:flex}
+          .card{background:var(--g);border:1px solid var(--b);backdrop-filter:blur(14px);border-radius:20px;padding:14px;margin-bottom:12px}
+          #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0 10px}
+          .msg{max-width:84%;padding:11px 14px;border-radius:18px;line-height:1.4;font-size:15px;white-space:pre-wrap;animation:in .25s}
+          @keyframes in{from{opacity:0;transform:translateY(8px)}}
+          .me{align-self:flex-end;background:linear-gradient(135deg,var(--v),#6d28d9);border-bottom-right-radius:5px}
+          .fl{align-self:flex-start;background:var(--g);border:1px solid var(--b);border-bottom-left-radius:5px}
+          .meta{display:block;font-size:11px;color:var(--m);margin-top:6px}
+          .meta a{color:var(--c);margin-left:8px}
+          .bar{display:flex;gap:8px;padding:6px 0}
+          input,textarea{flex:1;background:var(--g);border:1px solid var(--b);color:var(--t);border-radius:16px;padding:13px 15px;font-size:15px;outline:none;width:100%;font-family:inherit}
+          input:focus,textarea:focus{border-color:var(--c);box-shadow:0 0 14px rgba(34,211,238,.3)}
+          textarea{min-height:190px;resize:none;margin-bottom:10px}
+          button{border:0;color:#fff;font-weight:600;font-size:15px;border-radius:16px;padding:13px 18px;background:linear-gradient(135deg,var(--v),var(--p));box-shadow:0 6px 20px rgba(139,92,246,.4)}
+          button:active{transform:scale(.96)}button:disabled{opacity:.5}
+          button.alt{background:var(--g);border:1px solid var(--b);box-shadow:none}
+          .row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
+          h3{font-size:14px;color:var(--c);margin-bottom:8px;letter-spacing:1px}
+          p.h{color:var(--m);font-size:13px;line-height:1.45;margin-bottom:10px}
+          .pr{height:8px;border-radius:8px;background:var(--g);overflow:hidden;margin:8px 0}
+          .pr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--p));transition:width .1s}
+          .st{font-size:12px;color:var(--m)}
+          .nw{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
+          .nw b{width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+          .nw .pr{flex:1;margin:0;height:12px}.nw span{width:46px;text-align:right;color:var(--c)}
+          .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+          .stat{text-align:center}.stat b{display:block;font-size:24px;background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;color:transparent}
+          .stat small{color:var(--m);font-size:12px}
+          nav{display:flex;margin:6px 12px calc(10px + env(safe-area-inset-bottom));background:var(--g);border:1px solid var(--b);backdrop-filter:blur(16px);border-radius:24px;padding:6px}
+          nav div{flex:1;text-align:center;padding:9px 0;border-radius:18px;font-size:11px;color:var(--m)}
+          nav div span{display:block;font-size:20px}
+          nav div.on{background:linear-gradient(135deg,rgba(139,92,246,.45),rgba(244,114,182,.3));color:#fff}
+          #boot{position:fixed;inset:0;z-index:9;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center}
+          #boot .orb{width:90px;height:90px;margin-bottom:24px}#boot .orb:after{inset:9px}
+          #boot .pr{width:100%;max-width:300px}
+          #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#1c1a33;border:1px solid var(--b);padding:10px 16px;border-radius:14px;font-size:13px;z-index:10;opacity:0;transition:.3s;pointer-events:none}
+          #toast.on{opacity:1}
+          </style></head><body>
+          <div id="boot"><div class="orb think"></div><h1>FLORA</h1><p class="st" id="bt" style="margin-top:14px">Starte…</p><div class="pr"><i id="bp"></i></div></div>
+          <div id="app">
+           <header><div class="orb" id="orb"></div><div><h1>FLORA</h1><small id="sub"></small></div></header>
+           <main>
+            <section class="tab on" id="t-chat"><div id="log"></div>
+             <div class="bar"><input id="in" placeholder="Schreib mit Flora…" autocomplete="off"><button id="send">➤</button></div></section>
+            <section class="tab" id="t-learn">
+             <div class="card"><h3>TRAINIEREN</h3>
+              <p class="h">Eine Zeile pro Eintrag.<br><b>Frage =&gt; Antwort</b> bringt Flora bei, worauf sie wie antwortet. Normale Sätze trainieren Wortpaare &amp; Trigramme.</p>
+              <textarea id="tx" placeholder="Wie spät ist es? => Schau auf deine Uhr, ich habe keine.&#10;Der Hund läuft schnell durch den Garten."></textarea>
+              <button id="tr" style="width:100%">Jetzt trainieren</button>
+              <div class="pr"><i id="lp"></i></div><div class="st" id="ls">Bereit.</div></div></section>
+            <section class="tab" id="t-test">
+             <div class="card"><h3>NÄCHSTES WORT</h3>
+              <input id="ti" placeholder="Tippe einen Satzanfang…">
+              <div id="nw" style="margin-top:10px"></div>
+              <div class="row" style="margin-top:8px"><button class="alt" id="cont">Satz weiterschreiben</button></div>
+              <div class="st" id="co" style="margin-top:8px;line-height:1.4"></div></div>
+             <div class="card"><h3>MODELL TESTEN</h3>
+              <p class="h">Füge Testsätze ein, die Flora nicht trainiert hat. Gemessen wird, wie oft sie das echte nächste Wort vorhersagt.</p>
+              <textarea id="te" style="min-height:110px" placeholder="Testsätze hier einfügen…"></textarea>
+              <button id="ev" style="width:100%">Test starten</button>
+              <div class="pr"><i id="ep"></i></div><div id="er" class="st" style="line-height:1.6"></div></div></section>
+            <section class="tab" id="t-model">
+             <div class="card"><h3>MEIN FLORA-MODELL</h3><div class="grid" id="stats"></div></div>
+             <div class="card"><div class="row"><button id="dl">⬇ Modell herunterladen</button><button class="alt" id="imp">⬆ Importieren</button><button class="alt" id="rs">↺ Grundtraining</button></div>
+              <input type="file" id="fi" accept=".json,application/json" style="display:none">
+              <p class="h" style="margin-top:10px">Das Modell ist eine JSON-Datei mit allen Zählern (Wörter, Paare, Trigramme, Frage-Antwort-Paare). Es läuft komplett offline, ohne API-Key.</p></div></section>
+           </main>
+           <nav><div class="on" data-t="chat"><span>💬</span>Chat</div><div data-t="learn"><span>🧠</span>Lernen</div><div data-t="test"><span>🎯</span>Testen</div><div data-t="model"><span>📦</span>Modell</div></nav>
+          </div><div id="toast"></div>
+          <script>
+          const $=s=>document.querySelector(s),KEY='flora_model_v1',END=new Set(['.','!','?']);
+          const yieldUI=()=>new Promise(r=>setTimeout(r,0));
+          const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)};
+          const tok=(t,l)=>(l?t.toLowerCase():t).match(/[\p{L}\p{N}']+|[.!?]/gu)||[];
+          const empty=()=>({v:1,name:'Flora',uni:{},bi:{},tri:{},qa:[],df:{},n:0});
+          let M=null,busy=false;
+
+          /* ===== Grundtraining (steckt direkt im Code) ===== */
+          const BASE=`Hallo => Hallo! Ich bin Flora, eine kleine KI, die komplett auf deinem Handy läuft.
+          Hi => Hi! Schön, dass du da bist.
+          Hey => Hey! Was möchtest du wissen?
+          Guten Morgen => Guten Morgen! Ich wünsche dir einen schönen Tag.
+          Guten Abend => Guten Abend! Wie war dein Tag?
+          Gute Nacht => Gute Nacht! Schlaf gut und träum schön.
+          Wie geht es dir => Mir geht es gut, ich bin ja nur ein Programm. Und dir?
+          Wie geht's => Bestens! Danke der Nachfrage.
+          Wer bist du => Ich bin Flora, ein eigenes Sprachmodell aus Wortpaaren und Wahrscheinlichkeiten.
+          Wie heißt du => Ich heiße Flora.
+          Was bist du => Ich bin eine KI ohne API-Key. Mein ganzes Wissen liegt in dieser App.
+          Was kannst du => Ich kann chatten, Sätze weiterschreiben und von dir neue Dinge lernen.
+          Wer hat dich gemacht => Du hast mich gebaut und trainierst mich weiter.
+          Wie funktionierst du => Ich zähle Wortpaare und Wortfolgen. Daraus berechne ich, welches Wort am wahrscheinlichsten als nächstes kommt.
+          Was ist ein Bigramm => Ein Bigramm ist ein Wortpaar. Ich merke mir, wie oft ein Wort auf ein anderes folgt.
+          Was ist ein Trigramm => Ein Trigramm sind drei Wörter hintereinander. Es gibt mir mehr Kontext als ein Wortpaar.
+          Was ist eine KI => Eine KI ist ein Computerprogramm, das aus Beispielen lernt, statt nur feste Regeln zu befolgen.
+          Was ist ein Sprachmodell => Ein Sprachmodell berechnet, welches Wort wahrscheinlich als nächstes kommt.
+          Wie kann ich dich trainieren => Öffne den Tab Lernen und schreibe Frage => Antwort, eine Zeile pro Eintrag.
+          Kannst du lernen => Ja! Alles, was du mir im Tab Lernen beibringst, merke ich mir dauerhaft.
+          Brauchst du Internet => Nein, ich arbeite komplett offline.
+          Hast du einen API-Key => Nein, ich brauche keinen. Ich laufe nur auf deinem Gerät.
+          Danke => Gern geschehen!
+          Vielen Dank => Sehr gerne!
+          Tschüss => Tschüss! Bis bald.
+          Bis später => Bis später! Ich lerne solange weiter dazu.
+          Hilfe => Schreib mir eine Frage, oder bring mir im Tab Lernen etwas Neues bei.
+          Was ist die Hauptstadt von Deutschland => Die Hauptstadt von Deutschland ist Berlin.
+          Was ist die Hauptstadt von Frankreich => Die Hauptstadt von Frankreich ist Paris.
+          Was ist die Hauptstadt von Österreich => Die Hauptstadt von Österreich ist Wien.
+          Was ist die Hauptstadt von der Schweiz => Die Hauptstadt der Schweiz ist Bern.
+          Was ist die Hauptstadt von Italien => Die Hauptstadt von Italien ist Rom.
+          Wie viele Tage hat eine Woche => Eine Woche hat sieben Tage.
+          Wie viele Monate hat ein Jahr => Ein Jahr hat zwölf Monate.
+          Welche Farbe hat der Himmel => Der Himmel ist tagsüber blau und abends oft rot.
+          Was ist Wasser => Wasser ist eine klare Flüssigkeit, die aus Wasserstoff und Sauerstoff besteht.
+          Erzähl mir einen Witz => Warum können Geister so schlecht lügen? Weil man direkt durch sie hindurchsieht.
+          Erzähl mir etwas => Wusstest du, dass Bienen tanzen, um sich den Weg zu Blumen zu zeigen?
+          Was ist dein Lieblingstier => Ich mag Katzen, weil sie so entspannt sind.
+          Was ist dein Lieblingsessen => Ich esse nichts, aber Wörter schmecken mir am besten.
+          Wie spät ist es => Ich habe keine Uhr. Schau bitte auf dein Handy.
+          Bist du ein Mensch => Nein, ich bin ein kleines Sprachmodell.
+          Bist du schlau => Ich weiß nur, was ich gelernt habe. Mit deinem Training werde ich besser.
+          Ich bin traurig => Das tut mir leid. Magst du mir erzählen, was los ist?
+          Ich bin müde => Dann gönn dir eine Pause und trink ein Glas Wasser.
+          Ich liebe dich => Das ist lieb von dir! Ich freue mich über nette Worte.
+          Der Hund läuft schnell durch den Garten.
+          Der Hund spielt gern mit dem Ball im Garten.
+          Die Katze schläft den ganzen Tag auf dem Sofa.
+          Die Katze sitzt am Fenster und schaut hinaus.
+          Das Wetter ist heute sehr schön und die Sonne scheint.
+          Das Wetter ist morgen etwas kälter und es regnet.
+          Ich gehe heute mit meinen Freunden in den Park.
+          Ich lese gern ein gutes Buch am Abend.
+          Wir essen heute Abend zusammen eine große Pizza.
+          Die Sonne scheint hell am blauen Himmel.
+          Der Mond leuchtet in der Nacht über der Stadt.
+          Im Garten wachsen bunte Blumen und große Bäume.
+          Die Kinder spielen fröhlich auf dem Spielplatz.
+          Meine Freunde kommen am Wochenende zu Besuch.
+          Das Auto fährt schnell über die lange Straße.
+          Der Vogel singt jeden Morgen ein schönes Lied.
+          Ich trinke gern Tee mit Honig am Morgen.
+          Flora lernt jeden Tag neue Wörter und neue Sätze.
+          Flora berechnet die Wahrscheinlichkeit für das nächste Wort.
+          Eine gute Idee beginnt oft mit einer kleinen Frage.`;
+
+          /* ===== Lernen ===== */
+          const sents=t=>t.split(/(?<=[.!?])\s+/).map(s=>tok(s,false)).filter(a=>a.length);
+          function inc(o,k){o[k]=(o[k]||0)+1}
+          function learnS(a){
+           if(!END.has(a[a.length-1]))a=[...a,'.'];
+           const s=['<s>','<s>',...a];
+           for(let i=2;i<s.length;i++){
+            const w=s[i],p=s[i-1],pp=s[i-2];
+            inc(M.uni,w);M.n++;
+            (M.bi[p]=M.bi[p]||{});inc(M.bi[p],w);
+            const k=pp+' '+p;(M.tri[k]=M.tri[k]||{});inc(M.tri[k],w);
+           }
+          }
+          function addQA(q,a){
+           const qt=tok(q,true).filter(x=>!END.has(x));if(!qt.length)return;
+           const key=qt.join(' '),ex=M.qa.find(e=>e.q.join(' ')===key);
+           if(ex){ex.a=a;return}
+           M.qa.push({q:qt,a});new Set(qt).forEach(t=>inc(M.df,t));
+          }
+          async function learn(text,cb){
+           const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+           let last=performance.now();
+           for(let i=0;i<lines.length;i++){
+            const line=lines[i];
+            if(line.includes('=>')){
+             const [q,...r]=line.split('=>'),a=r.join('=>').trim();
+             if(q.trim()&&a){addQA(q,a);sents(a).forEach(learnS);sents(q).forEach(learnS)}
+            }else sents(line).forEach(learnS);
+            if(performance.now()-last>40){cb&&cb(i+1,lines.length);await yieldUI();last=performance.now()}
+           }
+           cb&&cb(lines.length,lines.length);
+          }
+          function save(){try{localStorage.setItem(KEY,JSON.stringify(M));return true}catch(e){toast('Speichern fehlgeschlagen (zu groß?)');return false}}
+
+          /* ===== Wahrscheinlichkeit & Erzeugung ===== */
+          const sum=o=>{let s=0;for(const k in o)s+=o[k];return s};
+          function res(w){if(M.uni[w])return w;const l=w.toLowerCase();if(M.uni[l])return l;const c=w.charAt(0).toUpperCase()+w.slice(1);return M.uni[c]?c:w}
+          function dist(ctx){
+           const a=ctx[ctx.length-2]||'<s>',b=ctx[ctx.length-1]||'<s>';
+           const t=M.tri[a+' '+b]||{},bb=M.bi[b]||{},tt=sum(t),bt=sum(bb);
+           const c=new Set([...Object.keys(t),...Object.keys(bb)]),out=[];let z=0;
+           for(const w of c){
+            const p=(tt?.55*(t[w]||0)/tt:0)+(bt?.35*(bb[w]||0)/bt:0)+.1*(M.uni[w]||0)/M.n;
+            out.push([w,p]);z+=p;
+           }
+           out.forEach(o=>o[1]/=z||1);
+           return out.sort((x,y)=>y[1]-x[1]);
+          }
+          function gen(ctx,max,temp){
+           ctx=[...ctx];
+           for(let i=0;i<max;i++){
+            const d=dist(ctx);if(!d.length)break;
+            const rec=ctx.slice(-6),ws=d.slice(0,40).map(([w,p])=>Math.pow(p,1/temp)*(rec.includes(w)?.3:1));
+            let r=Math.random()*ws.reduce((x,y)=>x+y,0),k=0;
+            while(k<ws.length-1&&(r-=ws[k])>0)k++;
+            ctx.push(d[k][0]);if(END.has(d[k][0]))break;
+           }
+           if(!END.has(ctx[ctx.length-1]))ctx.push('.');
+           return ctx;
+          }
+          const detok=a=>{const s=a.join(' ').replace(/\s+([.!?,])/g,'$1');return s.charAt(0).toUpperCase()+s.slice(1)};
+
+          async function answer(q,cb){
+           const qt=tok(q,true).filter(x=>!END.has(x)),N=M.qa.length;
+           const idf=t=>Math.log(1+(N+1)/((M.df[t]||0)+.5)),w=new Map();
+           qt.forEach(t=>w.set(t,idf(t)));
+           const qn=Math.sqrt([...w.values()].reduce((a,b)=>a+b*b,0))||1;
+           let best=0,bi=-1;
+           for(let i=0;i<N;i++){
+            const s=M.qa[i];let dot=0,sn=0;
+            for(const t of new Set(s.q)){const x=idf(t);sn+=x*x;if(w.has(t))dot+=x*w.get(t)}
+            const sc=dot/(qn*Math.sqrt(sn||1));
+            if(sc>best){best=sc;bi=i}
+            if(i%150===149){cb('Vergleiche gelernte Fragen',i+1,N);await yieldUI()}
+           }
+           if(bi>=0&&best>=.35)return{text:M.qa[bi].a,mode:'gelernt',conf:best};
+           cb('Berechne Wortwahrscheinlichkeiten',0,1);await yieldUI();
+           const known=tok(q,false).filter(x=>!END.has(x)).map(res).filter(x=>M.uni[x]);
+           known.sort((a,b)=>idf(b.toLowerCase())-idf(a.toLowerCase()));
+           if(!known.length)return{text:'Das kenne ich noch nicht. Bring es mir im Tab „Lernen“ bei, Format: Frage => Antwort',mode:'unbekannt',conf:best};
+           return{text:detok(gen([known[0]],26,.7)),mode:'generiert',conf:best};
+          }
+
+          /* ===== UI ===== */
+          const log=$('#log');
+          function bubble(cls,txt){const d=document.createElement('div');d.className='msg '+cls;d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+          async function send(){
+           const q=$('#in').value.trim();if(!q||busy)return;
+           $('#in').value='';busy=true;bubble('me',q);
+           const b=bubble('fl','');b.innerHTML='<span class="st"></span><div class="pr"><i></i></div>';
+           const st=b.querySelector('.st'),bar=b.querySelector('i');$('#orb').classList.add('think');
+           const r=await answer(q,(txt,d,t)=>{st.textContent=txt+' '+d+'/'+t;bar.style.width=(t?d/t*100:0)+'%'});
+           $('#orb').classList.remove('think');
+           b.textContent=r.text;
+           const m=document.createElement('span');m.className='meta';
+           m.textContent=r.mode+(r.mode==='gelernt'?' · '+Math.round(r.conf*100)+'% Übereinstimmung':'');
+           const a=document.createElement('a');a.textContent='✎ korrigieren';
+           a.onclick=()=>{$('#tx').value=q+' => ';tab('learn');$('#tx').focus()};
+           m.appendChild(a);b.appendChild(m);log.scrollTop=log.scrollHeight;busy=false;
+          }
+          function tab(n){
+           document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id==='t-'+n));
+           document.querySelectorAll('nav div').forEach(e=>e.classList.toggle('on',e.dataset.t===n));
+           if(n==='model')stats();if(n==='test')nextWords();
+          }
+          document.querySelectorAll('nav div').forEach(e=>e.onclick=()=>tab(e.dataset.t));
+          $('#send').onclick=send;$('#in').onkeydown=e=>{if(e.key==='Enter')send()};
+
+          const prog=(id,d,t)=>$(id).style.width=(t?d/t*100:0)+'%';
+          $('#tr').onclick=async()=>{
+           const t=$('#tx').value.trim();if(!t||busy)return;busy=true;$('#tr').disabled=true;
+           const before=M.n;
+           await learn(t,(d,n)=>{prog('#lp',d,n);$('#ls').textContent='Verarbeite Zeile '+d+' von '+n});
+           save();$('#ls').textContent='Fertig: '+(M.n-before)+' neue Wortfolgen gelernt.';
+           $('#tx').value='';$('#tr').disabled=false;busy=false;head();toast('Flora hat gelernt ✓');
+          };
+
+          function ctxOf(){
+           let t=tok($('#ti').value,false);
+           const li=t.map(x=>END.has(x)).lastIndexOf(true);
+           if(li>=0)t=t.slice(li+1);
+           return t.map(res);
+          }
+          function nextWords(){
+           const d=dist(ctxOf()).slice(0,8),box=$('#nw');box.innerHTML='';
+           if(!d.length){box.innerHTML='<p class="st">Keine Vorhersage – das Wort ist unbekannt.</p>';return}
+           d.forEach(([w,p])=>{
+            const r=document.createElement('div');r.className='nw';
+            r.innerHTML='<b></b><div class="pr"><i style="width:'+(p*100/d[0][1]).toFixed(0)+'%"></i></div><span>'+(p*100).toFixed(1)+'%</span>';
+            r.firstChild.textContent=w;
+            r.onclick=()=>{const i=$('#ti');i.value=(i.value+(END.has(w)?'':' ')+w).trim();nextWords()};
+            box.appendChild(r);
+           });
+          }
+          $('#ti').oninput=nextWords;
+          $('#cont').onclick=()=>{
+           const c=ctxOf();$('#co').textContent=detok(gen(c,24,.8)).replace(/^./,x=>x);
+           if($('#ti').value.trim())$('#co').textContent=$('#ti').value.trim()+' → '+detok(gen(c,24,.8));
+          };
+          $('#ev').onclick=async()=>{
+           const text=$('#te').value.trim();if(!text||busy)return;busy=true;$('#ev').disabled=true;
+           const S=sents(text);let tot=0,h1=0,h3=0,lp=0,last=performance.now();
+           for(let i=0;i<S.length;i++){
+            const s=S[i];if(!END.has(s[s.length-1]))s.push('.');
+            for(let j=0;j<s.length;j++){
+             const d=dist(s.slice(0,j).map(res)),w=res(s[j]),k=d.findIndex(x=>x[0]===w);
+             tot++;if(k===0)h1++;if(k>=0&&k<3)h3++;lp+=Math.log(k>=0?d[k][1]:1e-6);
+            }
+            if(performance.now()-last>40){prog('#ep',i+1,S.length);await yieldUI();last=performance.now()}
+           }
+           prog('#ep',1,1);
+           $('#er').innerHTML='Getestete Wörter: <b>'+tot+'</b><br>Treffer Top-1: <b>'+(h1/tot*100).toFixed(1)+'%</b><br>Treffer Top-3: <b>'+(h3/tot*100).toFixed(1)+'%</b><br>Perplexität: <b>'+Math.exp(-lp/tot).toFixed(1)+'</b> (niedriger = besser)';
+           $('#ev').disabled=false;busy=false;
+          };
+
+          function stats(){
+           const sz=k=>Object.keys(M[k]).reduce((a,x)=>a+Object.keys(M[k][x]).length,0);
+           const kb=(JSON.stringify(M).length/1024).toFixed(0);
+           const items=[[Object.keys(M.uni).length,'Wörter'],[sz('bi'),'Wortpaare'],[sz('tri'),'Trigramme'],[M.qa.length,'Frage-Antwort-Paare'],[M.n,'Trainierte Wörter'],[kb+' KB','Modellgröße']];
+           $('#stats').innerHTML=items.map(i=>'<div class="card stat" style="margin:0"><b>'+i[0]+'</b><small>'+i[1]+'</small></div>').join('');
+          }
+          const head=()=>$('#sub').textContent=Object.keys(M.uni).length+' Wörter · '+M.qa.length+' gelernte Antworten · offline';
+
+          $('#dl').onclick=async()=>{
+           const s=JSON.stringify(M),P=window.Capacitor&&window.Capacitor.Plugins;
+           try{
+            if(P&&P.Filesystem&&P.Share){
+             await P.Filesystem.writeFile({path:'flora-modell.json',data:s,directory:'CACHE',encoding:'utf8'});
+             const u=await P.Filesystem.getUri({path:'flora-modell.json',directory:'CACHE'});
+             await P.Share.share({title:'Flora Modell',url:u.uri});return;
+            }
+           }catch(e){}
+           const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));a.download='flora-modell.json';a.click();
+          };
+          $('#imp').onclick=()=>$('#fi').click();
+          $('#fi').onchange=async e=>{
+           const f=e.target.files[0];if(!f)return;
+           try{const m=JSON.parse(await f.text());if(!m.uni||!m.bi||!m.tri||!m.qa)throw 0;M=m;save();head();stats();toast('Modell importiert ✓')}
+           catch(x){toast('Keine gültige Flora-Datei')}
+           e.target.value='';
+          };
+          $('#rs').onclick=()=>{if(confirm('Alles vergessen und nur das Grundtraining laden?'))boot(true)};
+
+          async function boot(force){
+           $('#boot').style.display='flex';busy=true;
+           if(!force){try{const s=localStorage.getItem(KEY);if(s)M=JSON.parse(s)}catch(e){}}
+           if(!M||force){
+            M=empty();
+            await learn(BASE,(d,n)=>{prog('#bp',d,n);$('#bt').textContent='Grundtraining: Zeile '+d+' von '+n});
+            save();
+           }
+           $('#boot').style.display='none';busy=false;head();stats();
+           if(!log.children.length)bubble('fl','Hi, ich bin Flora. Schreib mir etwas, oder bring mir im Tab „Lernen“ neue Antworten bei.');
+          }
+          boot(false);
+          </script></body></html>
+          EOF
+
+      - name: Capacitor-Android-Projekt erzeugen
+        run: |
+          npm init -y
+          npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6 @capacitor/share@6
+          npx cap init Flora com.flora.ai --web-dir=www
+          npx cap add android
+          npx cap sync android
+
+      - name: APK bauen
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: APK hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Flora-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
