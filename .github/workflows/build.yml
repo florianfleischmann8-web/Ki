@@ -51,16 +51,17 @@ jobs:
           .tab.on{display:flex}
           .card{background:var(--g);border:1px solid var(--b);backdrop-filter:blur(14px);border-radius:20px;padding:14px;margin-bottom:12px}
           #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0 10px}
-          .msg{max-width:84%;padding:11px 14px;border-radius:18px;line-height:1.4;font-size:15px;white-space:pre-wrap;animation:in .25s}
+          .msg{max-width:88%;padding:11px 14px;border-radius:18px;line-height:1.4;font-size:15px;white-space:pre-wrap;animation:in .25s}
           @keyframes in{from{opacity:0;transform:translateY(8px)}}
           .me{align-self:flex-end;background:linear-gradient(135deg,var(--v),#6d28d9);border-bottom-right-radius:5px}
           .fl{align-self:flex-start;background:var(--g);border:1px solid var(--b);border-bottom-left-radius:5px}
           .meta{display:block;font-size:11px;color:var(--m);margin-top:6px}
           .meta a{color:var(--c);margin-left:8px}
+          .src{display:block;font-size:11px;color:var(--m);margin-top:6px;border-left:2px solid var(--c);padding-left:8px;line-height:1.35}
           .bar{display:flex;gap:8px;padding:6px 0}
           input,textarea{flex:1;background:var(--g);border:1px solid var(--b);color:var(--t);border-radius:16px;padding:13px 15px;font-size:15px;outline:none;width:100%;font-family:inherit}
           input:focus,textarea:focus{border-color:var(--c);box-shadow:0 0 14px rgba(34,211,238,.3)}
-          textarea{min-height:190px;resize:none;margin-bottom:10px}
+          textarea{min-height:150px;resize:none;margin-bottom:10px}
           button{border:0;color:#fff;font-weight:600;font-size:15px;border-radius:16px;padding:13px 18px;background:linear-gradient(135deg,var(--v),var(--p));box-shadow:0 6px 20px rgba(139,92,246,.4)}
           button:active{transform:scale(.96)}button:disabled{opacity:.5}
           button.alt{background:var(--g);border:1px solid var(--b);box-shadow:none}
@@ -76,9 +77,12 @@ jobs:
           .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
           .stat{text-align:center}.stat b{display:block;font-size:24px;background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;color:transparent}
           .stat small{color:var(--m);font-size:12px}
-          nav{display:flex;margin:6px 12px calc(10px + env(safe-area-inset-bottom));background:var(--g);border:1px solid var(--b);backdrop-filter:blur(16px);border-radius:24px;padding:6px}
-          nav div{flex:1;text-align:center;padding:9px 0;border-radius:18px;font-size:11px;color:var(--m)}
-          nav div span{display:block;font-size:20px}
+          .doc{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--b);font-size:14px}
+          .doc div{flex:1;min-width:0}.doc b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+          .doc button{padding:8px 12px;font-size:14px}
+          nav{display:flex;margin:6px 10px calc(10px + env(safe-area-inset-bottom));background:var(--g);border:1px solid var(--b);backdrop-filter:blur(16px);border-radius:24px;padding:5px}
+          nav div{flex:1;text-align:center;padding:8px 0;border-radius:18px;font-size:10.5px;color:var(--m)}
+          nav div span{display:block;font-size:19px}
           nav div.on{background:linear-gradient(135deg,rgba(139,92,246,.45),rgba(244,114,182,.3));color:#fff}
           #boot{position:fixed;inset:0;z-index:9;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center}
           #boot .orb{width:90px;height:90px;margin-bottom:24px}#boot .orb:after{inset:9px}
@@ -91,123 +95,118 @@ jobs:
            <header><div class="orb" id="orb"></div><div><h1>FLORA</h1><small id="sub"></small></div></header>
            <main>
             <section class="tab on" id="t-chat"><div id="log"></div>
-             <div class="bar"><input id="in" placeholder="Schreib mit Flora…" autocomplete="off"><button id="send">➤</button></div></section>
+             <div class="bar"><input id="in" placeholder="Frag Flora etwas…" autocomplete="off"><button id="send">➤</button></div></section>
+            <section class="tab" id="t-know">
+             <div class="card"><h3>WISSEN HOCHLADEN</h3>
+              <p class="h">Lade Textdateien hoch (.txt, .md, .csv, .json). Flora merkt sich jeden Satz, durchsucht ihn bei Fragen und formuliert daraus ihre Antwort. PDF oder Word: bitte als .txt speichern oder den Text unten einfügen.</p>
+              <button id="up" style="width:100%">📄 Dateien auswählen</button>
+              <input type="file" id="fi2" accept=".txt,.md,.csv,.json,.html,text/*" multiple style="display:none">
+              <input id="kt" placeholder="Titel (für eingefügten Text)" style="margin-top:12px;margin-bottom:8px">
+              <textarea id="kx" placeholder="Oder Text hier einfügen…"></textarea>
+              <button id="ka" class="alt" style="width:100%">Text hinzufügen</button>
+              <div class="pr"><i id="kp"></i></div><div class="st" id="ks">Bereit.</div></div>
+             <div class="card"><h3>MEIN WISSEN</h3><div id="docs"></div></div></section>
             <section class="tab" id="t-learn">
-             <div class="card"><h3>TRAINIEREN</h3>
-              <p class="h">Eine Zeile pro Eintrag.<br><b>Frage =&gt; Antwort</b> bringt Flora bei, worauf sie wie antwortet. Normale Sätze trainieren Wortpaare &amp; Trigramme.</p>
-              <textarea id="tx" placeholder="Wie spät ist es? => Schau auf deine Uhr, ich habe keine.&#10;Der Hund läuft schnell durch den Garten."></textarea>
+             <div class="card"><h3>FREI TRAINIEREN</h3>
+              <p class="h">Normale Sätze trainieren Wortpaare und Wortfolgen (Schreibstil). Mit <b>Frage =&gt; Antwort</b> korrigierst du Flora gezielt.</p>
+              <textarea id="tx" style="min-height:190px" placeholder="Der Hund läuft schnell durch den Garten.&#10;Wie alt ist Anna? => Anna ist 31 Jahre alt."></textarea>
               <button id="tr" style="width:100%">Jetzt trainieren</button>
               <div class="pr"><i id="lp"></i></div><div class="st" id="ls">Bereit.</div></div></section>
+            <section class="tab" id="t-nn">
+             <div class="card"><h3>EMBEDDINGS &amp; NEURONALES NETZ</h3>
+              <p class="h"><b>Embeddings</b> geben jedem Wort Zahlen, sodass ähnliche Wörter nah beieinander liegen. Damit findet Flora auch Sätze mit ähnlicher Bedeutung. Das <b>Netz</b> lernt aus deinen Texten, welches Wort nach drei Wörtern folgt. Beides wird auf deinem Handy trainiert.</p>
+              <div class="row"><button id="emb" class="alt">Embeddings neu berechnen</button><button id="nn">Netz trainieren</button></div>
+              <div class="pr"><i id="np"></i></div><div class="st" id="ns" style="line-height:1.5">Bereit.</div></div></section>
             <section class="tab" id="t-test">
              <div class="card"><h3>NÄCHSTES WORT</h3>
+              <div class="row" id="chips" style="margin-bottom:10px"><button class="alt" data-m="ng">N-Gramm</button><button class="alt" data-m="nn">Neuronal</button><button data-m="mix">Gemischt</button></div>
               <input id="ti" placeholder="Tippe einen Satzanfang…">
               <div id="nw" style="margin-top:10px"></div>
               <div class="row" style="margin-top:8px"><button class="alt" id="cont">Satz weiterschreiben</button></div>
               <div class="st" id="co" style="margin-top:8px;line-height:1.4"></div></div>
              <div class="card"><h3>MODELL TESTEN</h3>
-              <p class="h">Füge Testsätze ein, die Flora nicht trainiert hat. Gemessen wird, wie oft sie das echte nächste Wort vorhersagt.</p>
+              <p class="h">Füge Testsätze ein. Gemessen wird, wie oft Flora das echte nächste Wort vorhersagt.</p>
               <textarea id="te" style="min-height:110px" placeholder="Testsätze hier einfügen…"></textarea>
               <button id="ev" style="width:100%">Test starten</button>
               <div class="pr"><i id="ep"></i></div><div id="er" class="st" style="line-height:1.6"></div></div></section>
             <section class="tab" id="t-model">
              <div class="card"><h3>MEIN FLORA-MODELL</h3><div class="grid" id="stats"></div></div>
-             <div class="card"><div class="row"><button id="dl">⬇ Modell herunterladen</button><button class="alt" id="imp">⬆ Importieren</button><button class="alt" id="rs">↺ Grundtraining</button></div>
+             <div class="card"><div class="row"><button id="dl">⬇ Modell herunterladen</button><button class="alt" id="imp">⬆ Importieren</button><button class="alt" id="rs">↺ Grundwissen</button></div>
               <input type="file" id="fi" accept=".json,application/json" style="display:none">
-              <p class="h" style="margin-top:10px">Das Modell ist eine JSON-Datei mit allen Zählern (Wörter, Paare, Trigramme, Frage-Antwort-Paare). Es läuft komplett offline, ohne API-Key.</p></div></section>
+              <p class="h" style="margin-top:10px">Das Modell ist eine JSON-Datei mit allen Zählern, Wissenssätzen und gelernten Antworten. Es läuft komplett offline, ohne API-Key.</p></div></section>
            </main>
-           <nav><div class="on" data-t="chat"><span>💬</span>Chat</div><div data-t="learn"><span>🧠</span>Lernen</div><div data-t="test"><span>🎯</span>Testen</div><div data-t="model"><span>📦</span>Modell</div></nav>
+           <nav><div class="on" data-t="chat"><span>💬</span>Chat</div><div data-t="know"><span>📚</span>Wissen</div><div data-t="learn"><span>✍️</span>Lernen</div><div data-t="nn"><span>🧠</span>Netz</div><div data-t="test"><span>🎯</span>Testen</div><div data-t="model"><span>📦</span>Modell</div></nav>
           </div><div id="toast"></div>
           <script>
-          const $=s=>document.querySelector(s),KEY='flora_model_v1',END=new Set(['.','!','?']);
+          const $=s=>document.querySelector(s),END=new Set(['.','!','?']);
           const yieldUI=()=>new Promise(r=>setTimeout(r,0));
-          const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)};
-          const tok=(t,l)=>(l?t.toLowerCase():t).match(/[\p{L}\p{N}']+|[.!?]/gu)||[];
-          const empty=()=>({v:1,name:'Flora',uni:{},bi:{},tri:{},qa:[],df:{},n:0});
-          let M=null,busy=false;
+          const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400)};
+          const tok=(t,l)=>(l?t.toLowerCase():t).match(/\p{N}+(?:[.,]\p{N}+)+|[\p{L}\p{N}']+|[.!?,;:]/gu)||[];
+          const PUNC=/^[.!?,;:]$/;
+          const empty=()=>({v:3,name:'Flora',uni:{},bi:{},tri:{},qa:[],df:{},n:0,docs:[],pas:[],nd:1,lines:[],emb:null,nn:null});
+          let M=null,busy=false,IX=null;
+          const conv={ent:''};
 
-          /* ===== Grundtraining (steckt direkt im Code) ===== */
-          const BASE=`Hallo => Hallo! Ich bin Flora, eine kleine KI, die komplett auf deinem Handy läuft.
-          Hi => Hi! Schön, dass du da bist.
-          Hey => Hey! Was möchtest du wissen?
-          Guten Morgen => Guten Morgen! Ich wünsche dir einen schönen Tag.
-          Guten Abend => Guten Abend! Wie war dein Tag?
-          Gute Nacht => Gute Nacht! Schlaf gut und träum schön.
-          Wie geht es dir => Mir geht es gut, ich bin ja nur ein Programm. Und dir?
-          Wie geht's => Bestens! Danke der Nachfrage.
-          Wer bist du => Ich bin Flora, ein eigenes Sprachmodell aus Wortpaaren und Wahrscheinlichkeiten.
-          Wie heißt du => Ich heiße Flora.
-          Was bist du => Ich bin eine KI ohne API-Key. Mein ganzes Wissen liegt in dieser App.
-          Was kannst du => Ich kann chatten, Sätze weiterschreiben und von dir neue Dinge lernen.
-          Wer hat dich gemacht => Du hast mich gebaut und trainierst mich weiter.
-          Wie funktionierst du => Ich zähle Wortpaare und Wortfolgen. Daraus berechne ich, welches Wort am wahrscheinlichsten als nächstes kommt.
-          Was ist ein Bigramm => Ein Bigramm ist ein Wortpaar. Ich merke mir, wie oft ein Wort auf ein anderes folgt.
-          Was ist ein Trigramm => Ein Trigramm sind drei Wörter hintereinander. Es gibt mir mehr Kontext als ein Wortpaar.
-          Was ist eine KI => Eine KI ist ein Computerprogramm, das aus Beispielen lernt, statt nur feste Regeln zu befolgen.
-          Was ist ein Sprachmodell => Ein Sprachmodell berechnet, welches Wort wahrscheinlich als nächstes kommt.
-          Wie kann ich dich trainieren => Öffne den Tab Lernen und schreibe Frage => Antwort, eine Zeile pro Eintrag.
-          Kannst du lernen => Ja! Alles, was du mir im Tab Lernen beibringst, merke ich mir dauerhaft.
-          Brauchst du Internet => Nein, ich arbeite komplett offline.
-          Hast du einen API-Key => Nein, ich brauche keinen. Ich laufe nur auf deinem Gerät.
-          Danke => Gern geschehen!
-          Vielen Dank => Sehr gerne!
-          Tschüss => Tschüss! Bis bald.
-          Bis später => Bis später! Ich lerne solange weiter dazu.
-          Hilfe => Schreib mir eine Frage, oder bring mir im Tab Lernen etwas Neues bei.
-          Was ist die Hauptstadt von Deutschland => Die Hauptstadt von Deutschland ist Berlin.
-          Was ist die Hauptstadt von Frankreich => Die Hauptstadt von Frankreich ist Paris.
-          Was ist die Hauptstadt von Österreich => Die Hauptstadt von Österreich ist Wien.
-          Was ist die Hauptstadt von der Schweiz => Die Hauptstadt der Schweiz ist Bern.
-          Was ist die Hauptstadt von Italien => Die Hauptstadt von Italien ist Rom.
-          Wie viele Tage hat eine Woche => Eine Woche hat sieben Tage.
-          Wie viele Monate hat ein Jahr => Ein Jahr hat zwölf Monate.
-          Welche Farbe hat der Himmel => Der Himmel ist tagsüber blau und abends oft rot.
-          Was ist Wasser => Wasser ist eine klare Flüssigkeit, die aus Wasserstoff und Sauerstoff besteht.
-          Erzähl mir einen Witz => Warum können Geister so schlecht lügen? Weil man direkt durch sie hindurchsieht.
-          Erzähl mir etwas => Wusstest du, dass Bienen tanzen, um sich den Weg zu Blumen zu zeigen?
-          Was ist dein Lieblingstier => Ich mag Katzen, weil sie so entspannt sind.
-          Was ist dein Lieblingsessen => Ich esse nichts, aber Wörter schmecken mir am besten.
-          Wie spät ist es => Ich habe keine Uhr. Schau bitte auf dein Handy.
-          Bist du ein Mensch => Nein, ich bin ein kleines Sprachmodell.
-          Bist du schlau => Ich weiß nur, was ich gelernt habe. Mit deinem Training werde ich besser.
-          Ich bin traurig => Das tut mir leid. Magst du mir erzählen, was los ist?
-          Ich bin müde => Dann gönn dir eine Pause und trink ein Glas Wasser.
-          Ich liebe dich => Das ist lieb von dir! Ich freue mich über nette Worte.
-          Der Hund läuft schnell durch den Garten.
+          /* ===== Speicher (IndexedDB, passt auch große Texte) ===== */
+          const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('flora',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+          async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+          async function idbSet(k,v){const d=await idb();return new Promise((res,rej)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error)})}
+          async function save(){try{await idbSet('model',M);return true}catch(e){toast('Speichern fehlgeschlagen');return false}}
+
+          /* ===== Grundwissen & Sprachtraining (steckt im Code) ===== */
+          const BASE_DOCS=[
+          ['Über Flora',`Flora ist ein kleines Sprachmodell, das komplett offline auf dem Handy läuft. Flora zählt Wortpaare und Wortfolgen und berechnet daraus, welches Wort wahrscheinlich als nächstes kommt. Zusätzlich durchsucht Flora hochgeladene Texte nach passenden Stellen, wenn eine Frage gestellt wird. Auf dieser Grundlage formuliert Flora eigene Sätze und nennt die Textstelle als Quelle. Wer Flora trainieren möchte, lädt im Tab Wissen eigene Texte hoch. Flora benötigt weder Internet noch einen API-Key, weil alle Daten auf dem Gerät gespeichert bleiben.`],
+          ['Geografie',`Berlin ist die Hauptstadt von Deutschland und mit rund 3,7 Millionen Einwohnern die größte Stadt des Landes. Paris ist die Hauptstadt von Frankreich und liegt an der Seine. Wien ist die Hauptstadt von Österreich und liegt an der Donau. Bern ist die Hauptstadt der Schweiz, obwohl Zürich die größte Stadt ist. Rom ist die Hauptstadt von Italien und war das Zentrum des Römischen Reiches. Die Zugspitze ist mit 2962 Metern der höchste Berg Deutschlands. Der Rhein ist einer der längsten Flüsse Europas und fließt durch mehrere Länder bis in die Nordsee.`],
+          ['Natur',`Wasser besteht aus Wasserstoff und Sauerstoff und gefriert bei null Grad Celsius. Die Sonne ist ein Stern und liefert der Erde Licht und Wärme. Die Erde braucht etwa 365 Tage, um einmal um die Sonne zu laufen. Der Mond umkreist die Erde in etwa 27 Tagen. Pflanzen nehmen Kohlendioxid auf und erzeugen mit Hilfe von Licht Sauerstoff und Zucker. Bienen bestäuben Blüten und sind wichtig für viele Nutzpflanzen. Ein Jahr hat zwölf Monate und eine Woche hat sieben Tage.`],
+          ['Technik',`Eine künstliche Intelligenz ist ein Computerprogramm, das aus Beispielen lernt, statt nur feste Regeln zu befolgen. Ein Sprachmodell sagt voraus, welches Wort mit der größten Wahrscheinlichkeit auf eine Wortfolge folgt. Ein Bigramm ist ein Wortpaar, ein Trigramm besteht aus drei aufeinanderfolgenden Wörtern. Je mehr Text ein Sprachmodell zum Lernen bekommt, desto besser werden seine Vorhersagen. Ein Algorithmus ist eine genaue Anleitung, mit der ein Computer ein Problem Schritt für Schritt löst.`]];
+          const BASE_TEXT=`Der Hund läuft schnell durch den Garten.
           Der Hund spielt gern mit dem Ball im Garten.
           Die Katze schläft den ganzen Tag auf dem Sofa.
-          Die Katze sitzt am Fenster und schaut hinaus.
           Das Wetter ist heute sehr schön und die Sonne scheint.
           Das Wetter ist morgen etwas kälter und es regnet.
           Ich gehe heute mit meinen Freunden in den Park.
           Ich lese gern ein gutes Buch am Abend.
           Wir essen heute Abend zusammen eine große Pizza.
-          Die Sonne scheint hell am blauen Himmel.
           Der Mond leuchtet in der Nacht über der Stadt.
           Im Garten wachsen bunte Blumen und große Bäume.
           Die Kinder spielen fröhlich auf dem Spielplatz.
           Meine Freunde kommen am Wochenende zu Besuch.
           Das Auto fährt schnell über die lange Straße.
           Der Vogel singt jeden Morgen ein schönes Lied.
-          Ich trinke gern Tee mit Honig am Morgen.
-          Flora lernt jeden Tag neue Wörter und neue Sätze.
-          Flora berechnet die Wahrscheinlichkeit für das nächste Wort.
           Eine gute Idee beginnt oft mit einer kleinen Frage.`;
+
+          /* ===== Wörter, Wortstämme, Index ===== */
+          const SW=new Set('der die das den dem des ein eine einen einem einer eines und oder aber ist sind war waren wird werden wurde wurden hat haben hatte mit von zu zur zum im in am an auf aus bei für fuer über ueber nach vor als auch nicht sich es er sie wir ihr ich du was wer wie wo wann warum wieso welche welcher welches wem wen wessen dass ob so dann noch nur kann können kannst bist bin sein seine ihre ihren mir mein dir dein mich dich uns gibt gib sag sage erkläre erzähl erzähle mehr viel sehr um lang lange etwa eigentlich denn doch mal diese dieser dieses diesen man habe hast'.split(' '));
+          const stem=w=>{if(w.length>6&&w.startsWith('ge'))w=w.slice(2);if(w.length>5)for(const s of ['ungen','ung','ern','ete','ten','en','et','er','es','em','te','e','n','s','t'])if(w.endsWith(s)&&w.length-s.length>=4)return w.slice(0,-s.length);return w};
+          const terms=t=>tok(t,true).filter(x=>!PUNC.test(x)&&!SW.has(x)&&x.length>1).map(stem);
+          const newIX=()=>IX={inv:new Map(),len:[],tot:0};
+          function indexP(pid){
+           const tm=terms(M.pas[pid].t),tf=new Map();
+           tm.forEach(t=>tf.set(t,(tf.get(t)||0)+1));IX.len[pid]=tm.length;IX.tot+=tm.length;
+           tf.forEach((c,t)=>{let m=IX.inv.get(t);if(!m){m=new Map();IX.inv.set(t,m)}m.set(pid,c)});
+          }
+          async function buildIX(cb){
+           newIX();let last=performance.now();
+           for(let i=0;i<M.pas.length;i++){indexP(i);if(performance.now()-last>40){cb&&cb(i+1,M.pas.length);await yieldUI();last=performance.now()}}
+           cb&&cb(M.pas.length,M.pas.length);
+          }
 
           /* ===== Lernen ===== */
           const sents=t=>t.split(/(?<=[.!?])\s+/).map(s=>tok(s,false)).filter(a=>a.length);
-          function inc(o,k){o[k]=(o[k]||0)+1}
-          function learnS(a){
+          const psents=t=>t.replace(/\r/g,'').split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(s=>s.length>=25);
+          const inc=(o,k)=>{o[k]=(o[k]||0)+1};
+          function learnS(a,T=M){
            if(!END.has(a[a.length-1]))a=[...a,'.'];
            const s=['<s>','<s>',...a];
            for(let i=2;i<s.length;i++){
             const w=s[i],p=s[i-1],pp=s[i-2];
-            inc(M.uni,w);M.n++;
-            (M.bi[p]=M.bi[p]||{});inc(M.bi[p],w);
-            const k=pp+' '+p;(M.tri[k]=M.tri[k]||{});inc(M.tri[k],w);
+            inc(T.uni,w);T.n++;
+            (T.bi[p]=T.bi[p]||{});inc(T.bi[p],w);
+            const k=pp+' '+p;(T.tri[k]=T.tri[k]||{});inc(T.tri[k],w);
            }
           }
           function addQA(q,a){
-           const qt=tok(q,true).filter(x=>!END.has(x));if(!qt.length)return;
+           const qt=tok(q,true).filter(x=>!PUNC.test(x));if(!qt.length)return;
            const key=qt.join(' '),ex=M.qa.find(e=>e.q.join(' ')===key);
            if(ex){ex.a=a;return}
            M.qa.push({q:qt,a});new Set(qt).forEach(t=>inc(M.df,t));
@@ -219,32 +218,64 @@ jobs:
             const line=lines[i];
             if(line.includes('=>')){
              const [q,...r]=line.split('=>'),a=r.join('=>').trim();
-             if(q.trim()&&a){addQA(q,a);sents(a).forEach(learnS);sents(q).forEach(learnS)}
-            }else sents(line).forEach(learnS);
+             if(q.trim()&&a){addQA(q,a);M.lines.push(a);sents(a).forEach(x=>learnS(x));sents(q).forEach(x=>learnS(x))}
+            }else{M.lines.push(line);sents(line).forEach(x=>learnS(x))}
             if(performance.now()-last>40){cb&&cb(i+1,lines.length);await yieldUI();last=performance.now()}
            }
+           if(M.lines.length>6000)M.lines.splice(0,M.lines.length-6000);
            cb&&cb(lines.length,lines.length);
           }
-          function save(){try{localStorage.setItem(KEY,JSON.stringify(M));return true}catch(e){toast('Speichern fehlgeschlagen (zu groß?)');return false}}
+          async function learnDoc(title,text,cb){
+           const S=psents(text),id=M.nd++;M.docs.push({id,title,n:S.length});
+           let last=performance.now();
+           for(let i=0;i<S.length;i++){
+            M.pas.push({d:id,t:S[i]});indexP(M.pas.length-1);
+            const a=tok(S[i],false);if(a.length)learnS(a);
+            if(performance.now()-last>40){cb&&cb(i+1,S.length);await yieldUI();last=performance.now()}
+           }
+           cb&&cb(S.length,S.length);
+          }
 
           /* ===== Wahrscheinlichkeit & Erzeugung ===== */
           const sum=o=>{let s=0;for(const k in o)s+=o[k];return s};
           function res(w){if(M.uni[w])return w;const l=w.toLowerCase();if(M.uni[l])return l;const c=w.charAt(0).toUpperCase()+w.slice(1);return M.uni[c]?c:w}
-          function dist(ctx){
+          function distT(ctx,T){
            const a=ctx[ctx.length-2]||'<s>',b=ctx[ctx.length-1]||'<s>';
-           const t=M.tri[a+' '+b]||{},bb=M.bi[b]||{},tt=sum(t),bt=sum(bb);
+           const t=T.tri[a+' '+b]||{},bb=T.bi[b]||{},tt=sum(t),bt=sum(bb);
            const c=new Set([...Object.keys(t),...Object.keys(bb)]),out=[];let z=0;
            for(const w of c){
-            const p=(tt?.55*(t[w]||0)/tt:0)+(bt?.35*(bb[w]||0)/bt:0)+.1*(M.uni[w]||0)/M.n;
+            const p=(tt?.55*(t[w]||0)/tt:0)+(bt?.35*(bb[w]||0)/bt:0)+.1*(T.uni[w]||0)/(T.n||1);
             out.push([w,p]);z+=p;
            }
            out.forEach(o=>o[1]/=z||1);
            return out.sort((x,y)=>y[1]-x[1]);
           }
+          const dist=ctx=>distT(ctx,M);
+          function mix(ctx,L,a){
+           const m=new Map();
+           distT(ctx,L).forEach(([w,p])=>m.set(w,a*p));
+           distT(ctx,M).forEach(([w,p])=>m.set(w,(m.get(w)||0)+(1-a)*p));
+           return [...m].sort((x,y)=>y[1]-x[1]);
+          }
+          function genL(seed,L,temp,max){
+           const ctx=[...seed];
+           for(let i=0;i<max;i++){
+            const d=mix(ctx,L,.85);if(!d.length)break;
+            let k=0;
+            if(temp>0){
+             const rec=ctx.slice(-8),ws=d.slice(0,25).map(([w,p])=>Math.pow(p,1/temp)*(rec.includes(w)&&!END.has(w)?.2:1));
+             let r=Math.random()*ws.reduce((x,y)=>x+y,0);
+             while(k<ws.length-1&&(r-=ws[k])>0)k++;
+            }
+            ctx.push(d[k][0]);if(END.has(d[k][0]))break;
+           }
+           if(!END.has(ctx[ctx.length-1]))ctx.push('.');
+           return ctx;
+          }
           function gen(ctx,max,temp){
            ctx=[...ctx];
            for(let i=0;i<max;i++){
-            const d=dist(ctx);if(!d.length)break;
+            const d=distX(ctx);if(!d.length)break;
             const rec=ctx.slice(-6),ws=d.slice(0,40).map(([w,p])=>Math.pow(p,1/temp)*(rec.includes(w)?.3:1));
             let r=Math.random()*ws.reduce((x,y)=>x+y,0),k=0;
             while(k<ws.length-1&&(r-=ws[k])>0)k++;
@@ -253,10 +284,205 @@ jobs:
            if(!END.has(ctx[ctx.length-1]))ctx.push('.');
            return ctx;
           }
-          const detok=a=>{const s=a.join(' ').replace(/\s+([.!?,])/g,'$1');return s.charAt(0).toUpperCase()+s.slice(1)};
+          const detok=a=>{const s=a.join(' ').replace(/\s+([.!?,;:])/g,'$1');return s.charAt(0).toUpperCase()+s.slice(1)};
 
-          async function answer(q,cb){
-           const qt=tok(q,true).filter(x=>!END.has(x)),N=M.qa.length;
+          /* ===== Embeddings (Word2Vec, selbst trainiert) & neuronales Netz ===== */
+          const ED=32,NN_D=24,NN_H=48,NN_V=800;
+          let EMB=null,PV=null,NN=null,MODE='mix',CM=null,CMn=-1;
+          const qz=(a,s)=>Array.from(a,x=>Math.round(x*s));
+          function unpackEmb(o){
+           const f=Float32Array.from(o.v,x=>x/500);
+           for(let i=0;i<o.w.length;i++){let z=0;for(let j=0;j<ED;j++)z+=f[i*ED+j]*f[i*ED+j];z=Math.sqrt(z)||1;for(let j=0;j<ED;j++)f[i*ED+j]/=z}
+           return{ix:new Map(o.w.map((w,i)=>[w,i])),v:f};
+          }
+          async function trainEmb(cb){
+           const S=M.pas.map(p=>terms(p.t)).filter(a=>a.length>1),f=new Map();
+           S.forEach(a=>a.forEach(w=>f.set(w,(f.get(w)||0)+1)));
+           const words=[...f].sort((a,b)=>b[1]-a[1]).slice(0,4000).map(x=>x[0]);
+           if(words.length<5){M.emb=null;EMB=null;return}
+           const ix=new Map(words.map((w,i)=>[w,i])),V=words.length;
+           const I=S.map(a=>a.filter(w=>ix.has(w)).map(w=>ix.get(w))).filter(a=>a.length>1);
+           let tw=0;words.forEach(w=>tw+=Math.pow(f.get(w),.75));
+           const tab=[];words.forEach((w,i)=>{const c=Math.max(1,Math.round(Math.pow(f.get(w),.75)*50000/tw));for(let k=0;k<c;k++)tab.push(i)});
+           const P=I.reduce((s,a)=>s+a.length*Math.min(8,a.length-1),0)||1;
+           const epochs=Math.max(3,Math.min(25,Math.round(150000/P)));
+           const Win=Float32Array.from({length:V*ED},()=>(Math.random()-.5)/ED),Wo=new Float32Array(V*ED),g=new Float32Array(ED);
+           const total=epochs*I.length;let done=0,last=performance.now();
+           for(let ep=0;ep<epochs;ep++){
+            const lr=.05-.04*ep/epochs;
+            for(let si=0;si<I.length;si++){
+             const a=I[si];
+             for(let i=0;i<a.length;i++){
+              const c=a[i]*ED;
+              for(let j=Math.max(0,i-4);j<Math.min(a.length,i+5);j++){
+               if(j===i)continue;g.fill(0);
+               for(let k=0;k<6;k++){
+                const t=k?tab[(Math.random()*tab.length)|0]:a[j];if(k&&t===a[j])continue;
+                const o=t*ED;let s=0;for(let d=0;d<ED;d++)s+=Win[c+d]*Wo[o+d];
+                const e=((k?0:1)-1/(1+Math.exp(-s)))*lr;
+                for(let d=0;d<ED;d++){g[d]+=e*Wo[o+d];Wo[o+d]+=e*Win[c+d]}
+               }
+               for(let d=0;d<ED;d++)Win[c+d]+=g[d];
+              }
+             }
+             done++;if(performance.now()-last>40){cb&&cb(done,total,'Epoche '+(ep+1)+'/'+epochs);await yieldUI();last=performance.now()}
+            }
+           }
+           M.emb={w:words,v:qz(Win,500)};EMB=unpackEmb(M.emb);cb&&cb(total,total);
+          }
+          function sv(tm){
+           const v=new Float32Array(ED),N=M.pas.length||1;let any=false;
+           for(const t of tm){
+            const i=EMB.ix.get(t);if(i===undefined)continue;
+            const m=IX.inv.get(t),n=m?m.size:0,w=Math.log(1+(N-n+.5)/(n+.5));
+            for(let j=0;j<ED;j++)v[j]+=w*EMB.v[i*ED+j];any=true;
+           }
+           if(!any)return null;
+           let z=0;for(let j=0;j<ED;j++)z+=v[j]*v[j];z=Math.sqrt(z)||1;for(let j=0;j<ED;j++)v[j]/=z;
+           return v;
+          }
+          async function buildPV(cb){
+           PV=null;if(!EMB||!M.pas.length)return;
+           const N=M.pas.length,pv=new Float32Array(N*ED);let last=performance.now();
+           for(let i=0;i<N;i++){
+            const v=sv(terms(M.pas[i].t));if(v)pv.set(v,i*ED);
+            if(performance.now()-last>40){cb&&cb(i+1,N);await yieldUI();last=performance.now()}
+           }
+           PV=pv;cb&&cb(N,N);
+          }
+          async function rebuildSem(cb){
+           await trainEmb((d,n,x)=>cb&&cb('Embeddings',d,n,x));
+           await buildPV((d,n)=>cb&&cb('Satz-Vektoren',d,n));
+          }
+          /* neuronales Netz: 3 Wörter Kontext -> verdeckte Schicht (tanh) -> Wahrscheinlichkeit für jedes Wort */
+          function packNN(n){return{w:n.w,E:qz(n.E,1000),W1:qz(n.W1,1000),b1:qz(n.b1,1000),W2:qz(n.W2,1000),b2:qz(n.b2,1000)}}
+          function unpackNN(o){const f=a=>Float32Array.from(a,x=>x/1000);return{w:o.w,V:o.w.length,ix:new Map(o.w.map((w,i)=>[w,i])),E:f(o.E),W1:f(o.W1),b1:f(o.b1),W2:f(o.W2),b2:f(o.b2)}}
+          function nnProbs(n,ids,keep){
+           const d=NN_D,H=NN_H,V=n.V,x=new Float32Array(3*d),h=new Float32Array(H),z=new Float32Array(V);
+           for(let k=0;k<3;k++){const o=ids[k]*d;for(let j=0;j<d;j++)x[k*d+j]=n.E[o+j]}
+           for(let i=0;i<H;i++)h[i]=n.b1[i];
+           for(let j=0;j<3*d;j++){const xj=x[j],o=j*H;for(let i=0;i<H;i++)h[i]+=xj*n.W1[o+i]}
+           for(let i=0;i<H;i++)h[i]=Math.tanh(h[i]);
+           for(let v=0;v<V;v++)z[v]=n.b2[v];
+           for(let i=0;i<H;i++){const hi=h[i],o=i*V;for(let v=0;v<V;v++)z[v]+=hi*n.W2[o+v]}
+           let mx=-1e9;for(let v=0;v<V;v++)if(z[v]>mx)mx=z[v];
+           let t=0;for(let v=0;v<V;v++){z[v]=Math.exp(z[v]-mx);t+=z[v]}
+           for(let v=0;v<V;v++)z[v]/=t;
+           return keep?{x,h,p:z}:z;
+          }
+          function nnStep(n,ids,y,lr){
+           const {x,h,p}=nnProbs(n,ids,true),d=NN_D,H=NN_H,V=n.V,loss=-Math.log(p[y]+1e-9);
+           p[y]-=1;
+           const dh=new Float32Array(H),dx=new Float32Array(3*d);
+           for(let i=0;i<H;i++){let s=0;const o=i*V;for(let v=0;v<V;v++)s+=p[v]*n.W2[o+v];dh[i]=s*(1-h[i]*h[i])}
+           for(let i=0;i<H;i++){const o=i*V,hi=h[i]*lr;for(let v=0;v<V;v++)n.W2[o+v]-=hi*p[v]}
+           for(let v=0;v<V;v++)n.b2[v]-=lr*p[v];
+           for(let j=0;j<3*d;j++){let s=0;const o=j*H;for(let i=0;i<H;i++)s+=dh[i]*n.W1[o+i];dx[j]=s}
+           for(let j=0;j<3*d;j++){const o=j*H,xj=x[j]*lr;for(let i=0;i<H;i++)n.W1[o+i]-=xj*dh[i]}
+           for(let i=0;i<H;i++)n.b1[i]-=lr*dh[i];
+           for(let k=0;k<3;k++){const o=ids[k]*d;for(let j=0;j<d;j++)n.E[o+j]-=lr*dx[k*d+j]}
+           return loss;
+          }
+          async function trainNN(cb){
+           const T=[...M.pas.map(p=>p.t),...M.lines].map(t=>tok(t,true)).filter(a=>a.length>1);
+           if(!T.length)return 0;
+           const f=new Map();T.forEach(a=>a.forEach(w=>f.set(w,(f.get(w)||0)+1)));
+           const words=['<s>','<unk>',...[...f].sort((a,b)=>b[1]-a[1]).slice(0,NN_V-2).map(x=>x[0])],ix=new Map(words.map((w,i)=>[w,i])),V=words.length;
+           const S=[];
+           for(const a of T){const b=END.has(a[a.length-1])?a:[...a,'.'];let c=[0,0,0];for(const w of b){const y=ix.has(w)?ix.get(w):1;S.push(c[0],c[1],c[2],y);c=[c[1],c[2],y]}}
+           const n=Math.floor(S.length/4),d=NN_D,H=NN_H,r=(k,s)=>Float32Array.from({length:k},()=>(Math.random()-.5)*s);
+           const net={w:words,V,ix,E:r(V*d,.2),W1:r(3*d*H,.3),b1:new Float32Array(H),W2:r(H*V,.3),b2:new Float32Array(V)};
+           const per=Math.min(n,8000),epochs=Math.max(3,Math.min(30,Math.round(60000/per))),total=per*epochs;
+           const order=Array.from({length:n},(_,i)=>i);let done=0,last=performance.now(),ll=0;
+           for(let ep=0;ep<epochs;ep++){
+            for(let i=n-1;i>0;i--){const j=(Math.random()*(i+1))|0;[order[i],order[j]]=[order[j],order[i]]}
+            const lr=.08*(1-ep/epochs)+.01;let loss=0;
+            for(let k=0;k<per;k++){
+             const o=order[k]*4;loss+=nnStep(net,[S[o],S[o+1],S[o+2]],S[o+3],lr);done++;
+             if(performance.now()-last>40){cb&&cb(done,total,'Epoche '+(ep+1)+'/'+epochs+' · Fehler '+(loss/(k+1)).toFixed(2));await yieldUI();last=performance.now()}
+            }
+            ll=loss/per;
+           }
+           NN=net;M.nn=packNN(net);cb&&cb(total,total,'Fehler '+ll.toFixed(2));return ll;
+          }
+          function nnIds(ctx){const r=ctx.slice(-3).map(w=>{const i=NN.ix.get(w.toLowerCase());return i===undefined?1:i});while(r.length<3)r.unshift(0);return r}
+          function caseMap(){
+           if(CM&&CMn===M.n)return CM;
+           CM=new Map();const best={};
+           for(const w in M.uni){const l=w.toLowerCase();if(!best[l]||M.uni[w]>M.uni[best[l]])best[l]=w}
+           for(const l in best)CM.set(l,best[l]);CMn=M.n;return CM;
+          }
+          function distX(ctx){
+           const d=dist(ctx);if(!NN||MODE==='ng')return d;
+           const p=nnProbs(NN,nnIds(ctx)),cm=caseMap(),top=[];
+           for(let v=2;v<NN.V;v++)top.push(v);
+           top.sort((a,b)=>p[b]-p[a]);
+           if(MODE==='nn')return top.slice(0,12).map(v=>[cm.get(NN.w[v])||NN.w[v],p[v]]);
+           const m=new Map(d.map(([w,pg])=>[w,[pg,0]]));
+           top.slice(0,10).forEach(v=>{const w=cm.get(NN.w[v])||NN.w[v];if(!m.has(w))m.set(w,[0,0])});
+           let z=0;m.forEach((e,w)=>{const id=NN.ix.get(w.toLowerCase());e[1]=id===undefined?0:p[id];z+=e[1]});
+           return[...m].map(([w,[pg,pn]])=>[w,.5*pg+.5*(z?pn/z:0)]).sort((a,b)=>b[1]-a[1]);
+          }
+
+          /* ===== Gesprächskontext ===== */
+          const PRON=/\b(er|sie|ihn|ihm|ihr|ihre|ihren|ihrer|sein|seine|seinen|seiner|seinem|dessen|deren|dort|davon|dazu)\b/i;
+          function capRun(t,allowFirst){
+           const runs=[];let run=[];
+           t.forEach((x,i)=>{if(/^\p{Lu}/u.test(x)){run.push([x,i])}else{if(run.length)runs.push(run);run=[]}});
+           if(run.length)runs.push(run);
+           for(let r of runs){
+            r=r.filter(([x])=>!SW.has(x.toLowerCase()));
+            if(!r.length)continue;
+            if(r.length===1&&r[0][1]===0&&!allowFirst)continue;
+            return r.map(x=>x[0]).join(' ');
+           }
+           return '';
+          }
+          function resolve(q){
+           if(!conv.ent)return q;
+           const t=tok(q,false),hasEnt=capRun(t,false);
+           if(PRON.test(q))return q.replace(PRON,conv.ent);
+           if(!hasEnt&&terms(q).length<=1)return q.replace(/[?!.]*\s*$/,'')+' '+conv.ent+'?';
+           return q;
+          }
+
+          /* ===== Wissenssuche (BM25 + Embeddings) ===== */
+          function search(q,ent){
+           const entT=new Set(ent?terms(ent):[]);
+           const qt=[...new Set(terms(q))],N=M.pas.length,sc=new Map(),idf={},wt={};
+           const cap=new Set();tok(q,false).forEach((x,i)=>{if(i>0&&/^\p{Lu}/u.test(x))cap.add(stem(x.toLowerCase()))});
+           const avg=(IX.tot/N)||1;let tot=0;
+           for(const t of qt){
+            const m=IX.inv.get(t),n=m?m.size:0,b=cap.has(t)?1.5:1;
+            idf[t]=Math.log(1+(N-n+.5)/(n+.5))*b*(entT.has(t)?.4:1);
+            wt[t]=m?idf[t]:idf[t]*(cap.has(t)?1:.25);tot+=wt[t];
+            if(m)m.forEach((tf,pid)=>sc.set(pid,(sc.get(pid)||0)+idf[t]*tf*2.2/(tf+1.2*(.25+.75*IX.len[pid]/avg))));
+           }
+           const bm=[...sc].sort((a,b)=>b[1]-a[1]).slice(0,12),mx=bm.length?bm[0][1]:1,cand=new Set(bm.map(x=>x[0]));
+           let cs=null;
+           if(EMB&&PV){
+            const qv=sv(qt);
+            if(qv){
+             cs=new Float32Array(N);const ca=[];
+             for(let p=0;p<N;p++){let s=0;for(let j=0;j<ED;j++)s+=qv[j]*PV[p*ED+j];cs[p]=s;if(s>.5)ca.push([p,s])}
+             ca.sort((a,b)=>b[1]-a[1]).slice(0,12).forEach(x=>cand.add(x[0]));
+            }
+           }
+           let hits=[...cand].map(p=>[p,.65*((sc.get(p)||0)/mx)+.35*Math.max(0,cs?cs[p]:0)]).sort((a,b)=>b[1]-a[1]);
+           if(/\b(wann|jahr|jahre|wie viele|wie viel|wieviel|wie lang|wie alt|wie groß|wie hoch)\b/i.test(q)&&hits.length)
+            hits=hits.map(([p,s])=>[p,/\d/.test(M.pas[p].t)?s+.1:s]).sort((a,b)=>b[1]-a[1]);
+           const top=hits.slice(0,4);let cov=0;
+           if(top.length&&tot){
+            const set=new Set();top.slice(0,3).forEach(([p])=>terms(M.pas[p].t).forEach(t=>set.add(t)));
+            for(const t of qt)if(set.has(t))cov+=wt[t];
+            cov/=tot;
+           }
+           return{hits:top,cov,sem:cs&&top.length?cs[top[0][0]]:0,qt,idf};
+          }
+
+          async function answer(q,cb,ent){
+           /* 1) von dir korrigierte Antworten */
+           const qt=tok(q,true).filter(x=>!PUNC.test(x)),N=M.qa.length;
            const idf=t=>Math.log(1+(N+1)/((M.df[t]||0)+.5)),w=new Map();
            qt.forEach(t=>w.set(t,idf(t)));
            const qn=Math.sqrt([...w.values()].reduce((a,b)=>a+b*b,0))||1;
@@ -266,14 +492,52 @@ jobs:
             for(const t of new Set(s.q)){const x=idf(t);sn+=x*x;if(w.has(t))dot+=x*w.get(t)}
             const sc=dot/(qn*Math.sqrt(sn||1));
             if(sc>best){best=sc;bi=i}
-            if(i%150===149){cb('Vergleiche gelernte Fragen',i+1,N);await yieldUI()}
+            if(i%150===149){cb('Vergleiche gelernte Antworten',i+1,N);await yieldUI()}
            }
-           if(bi>=0&&best>=.35)return{text:M.qa[bi].a,mode:'gelernt',conf:best};
-           cb('Berechne Wortwahrscheinlichkeiten',0,1);await yieldUI();
-           const known=tok(q,false).filter(x=>!END.has(x)).map(res).filter(x=>M.uni[x]);
-           known.sort((a,b)=>idf(b.toLowerCase())-idf(a.toLowerCase()));
-           if(!known.length)return{text:'Das kenne ich noch nicht. Bring es mir im Tab „Lernen“ bei, Format: Frage => Antwort',mode:'unbekannt',conf:best};
-           return{text:detok(gen([known[0]],26,.7)),mode:'generiert',conf:best};
+           if(bi>=0&&best>=.6)return{text:M.qa[bi].a,mode:'von dir gelernt',conf:best,src:''};
+           /* 2) Wissen durchsuchen */
+           cb('Durchsuche Wissen',1,2);await yieldUI();
+           const r=search(q,ent);
+           if(!r.hits.length||(r.cov<.34&&r.sem<.85))return{text:'Dazu finde ich nichts in meinem Wissen. Lade im Tab „Wissen“ Texte hoch, die dazu passen.',mode:'kein Treffer',conf:r.cov,src:''};
+           /* 3) pro Textstelle ein lokales Sprachmodell, damit keine Fakten vermischt werden */
+           const top=r.hits.slice(0,3),Ls=top.map(([p])=>{const L=empty(),a=tok(M.pas[p].t,false);if(a.length)learnS(a,L);return L}),cands=[];
+           let step=0;const total=top.length*3;
+           for(let s=0;s<top.length;s++){
+            const seed=tok(M.pas[top[s][0]].t,false).slice(0,2);
+            for(const tmp of [0,.4,.4]){
+             cands.push({a:genL(seed,Ls[s],tmp,40),s});
+             cb('Formuliere Antwortvarianten',++step,total);await yieldUI();
+            }
+           }
+           const score=c=>{
+            const L=Ls[c.s],ws=c.a.filter(x=>!PUNC.test(x));if(ws.length<4)return -1;
+            const st=new Set(terms(ws.join(' ')));let cv=0,tt=0;
+            for(const t of r.qt){tt+=r.idf[t];if(st.has(t))cv+=r.idf[t]}
+            let f=0,n=0;
+            for(let i=2;i<c.a.length;i++){n++;const k=L.tri[c.a[i-2]+' '+c.a[i-1]];if(k&&k[c.a[i]])f++}
+            const faith=n?f/n:0;if(faith<.85)return -1;
+            let fl=0;
+            if(NN){let sp=0,mm=0;for(let i=1;i<c.a.length;i++){const id=NN.ix.get(c.a[i].toLowerCase());if(id===undefined)continue;sp+=Math.log(nnProbs(NN,nnIds(c.a.slice(0,i)))[id]+1e-9);mm++}fl=mm?Math.exp(sp/mm):0}
+            return(tt?cv/tt:0)+.5*faith+.3*fl+.3*(new Set(ws).size/ws.length)-(ws.length>45?.3:0)+(c.s===0?.15:0);
+           };
+           cands.forEach(c=>c.sc=score(c));cands.sort((a,b)=>b.sc-a.sc);
+           const b1=cands[0];
+           if(!b1||b1.sc<0)return{text:'Dazu finde ich nichts Sicheres in meinem Wissen.',mode:'kein Treffer',conf:r.cov,src:''};
+           let text=detok(b1.a),ex=false;
+           if(/^\s*(was ist|was sind|erkl|beschreib|erzähl|fasse|nenne|wer ist|wer war)/i.test(q)){
+            ex=true;
+           }
+           const eT=new Set(ent?terms(ent):[]),keyT=r.qt.filter(t=>!eT.has(t)).sort((a,b)=>r.idf[b]-r.idf[a]).slice(0,2);
+           const b2=cands.find(c=>c.s!==b1.s&&c.sc>.5&&r.hits[c.s][1]>=(ex?.75:.85)*r.hits[b1.s][1]&&(!keyT.length||terms(M.pas[top[c.s][0]].t).some(t=>keyT.includes(t))));
+           if(b2)text+=' '+detok(b2.a);
+           const key=r.qt.filter(t=>IX.inv.has(t)).sort((a,b)=>r.idf[b]-r.idf[a])[0];
+           if(key&&!terms(text).includes(key)){
+            const o=tok(q,false).find(x=>stem(x.toLowerCase())===key);
+            if(o)text='Zu „'+o+'“: '+text;
+           }
+           if(ent)text=text.replace(/(^|[.!?]\s+)(Er|Sie)\b/g,(m,a)=>a+ent);
+           const p0=M.pas[r.hits[0][0]],dt=(M.docs.find(d=>d.id===p0.d)||{}).title||'';
+           return{text,mode:'aus Wissen',conf:Math.max(r.cov,r.sem>=.85?r.sem:0),src:'Quelle: '+dt+' – „'+p0.t.slice(0,150)+(p0.t.length>150?'…':'')+'“'};
           }
 
           /* ===== UI ===== */
@@ -284,11 +548,14 @@ jobs:
            $('#in').value='';busy=true;bubble('me',q);
            const b=bubble('fl','');b.innerHTML='<span class="st"></span><div class="pr"><i></i></div>';
            const st=b.querySelector('.st'),bar=b.querySelector('i');$('#orb').classList.add('think');
-           const r=await answer(q,(txt,d,t)=>{st.textContent=txt+' '+d+'/'+t;bar.style.width=(t?d/t*100:0)+'%'});
+           const rq=resolve(q),used=rq!==q?conv.ent:'';
+           const r=await answer(rq,(txt,d,t)=>{st.textContent=txt+' '+d+'/'+t;bar.style.width=(t?d/t*100:0)+'%'},used);
            $('#orb').classList.remove('think');
            b.textContent=r.text;
+           if(r.src){const s=document.createElement('span');s.className='src';s.textContent=r.src;b.appendChild(s)}
            const m=document.createElement('span');m.className='meta';
-           m.textContent=r.mode+(r.mode==='gelernt'?' · '+Math.round(r.conf*100)+'% Übereinstimmung':'');
+           m.textContent=r.mode+(r.mode!=='kein Treffer'?' · '+Math.round(Math.min(1,r.conf)*100)+'% Übereinstimmung':'')+(rq!==q?' · verstanden als: „'+rq+'“':'');
+           const ne=capRun(tok(rq,false),false)||(r.mode==='aus Wissen'?capRun(tok(r.text,false),true):'');if(ne)conv.ent=ne;
            const a=document.createElement('a');a.textContent='✎ korrigieren';
            a.onclick=()=>{$('#tx').value=q+' => ';tab('learn');$('#tx').focus()};
            m.appendChild(a);b.appendChild(m);log.scrollTop=log.scrollHeight;busy=false;
@@ -296,20 +563,70 @@ jobs:
           function tab(n){
            document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id==='t-'+n));
            document.querySelectorAll('nav div').forEach(e=>e.classList.toggle('on',e.dataset.t===n));
-           if(n==='model')stats();if(n==='test')nextWords();
+           if(n==='model')stats();if(n==='nn')nnInfo();if(n==='test')nextWords();if(n==='know')docList();
           }
           document.querySelectorAll('nav div').forEach(e=>e.onclick=()=>tab(e.dataset.t));
           $('#send').onclick=send;$('#in').onkeydown=e=>{if(e.key==='Enter')send()};
-
           const prog=(id,d,t)=>$(id).style.width=(t?d/t*100:0)+'%';
+
+          /* Wissen */
+          function docList(){
+           const box=$('#docs');box.innerHTML='';
+           if(!M.docs.length){box.innerHTML='<p class="st">Noch kein Wissen geladen.</p>';return}
+           M.docs.forEach(d=>{
+            const r=document.createElement('div');r.className='doc';
+            r.innerHTML='<div><b></b><span class="st">'+d.n+' Sätze</span></div><button class="alt">🗑</button>';
+            r.querySelector('b').textContent=d.title;
+            r.querySelector('button').onclick=async()=>{
+             if(busy||!confirm('„'+d.title+'“ entfernen?'))return;busy=true;
+             M.pas=M.pas.filter(p=>p.d!==d.id);M.docs=M.docs.filter(x=>x.id!==d.id);
+             await buildIX((a,n)=>{prog('#kp',a,n);$('#ks').textContent='Baue Index neu '+a+'/'+n});
+             await rebuildSem(mk('#kp','#ks'));
+             await save();busy=false;head();docList();$('#ks').textContent='Entfernt. Gelernte Wortpaare bleiben erhalten.';
+            };
+            box.appendChild(r);
+           });
+          }
+          async function addDoc(title,text){
+           await learnDoc(title,text,(d,n)=>{prog('#kp',d,n);$('#ks').textContent=title+': Satz '+d+' von '+n});
+          }
+          $('#up').onclick=()=>$('#fi2').click();
+          $('#fi2').onchange=async e=>{
+           if(busy)return;const fs=[...e.target.files];e.target.value='';if(!fs.length)return;busy=true;
+           for(const f of fs){
+            if(/\.(pdf|docx?|pptx?|xlsx?)$/i.test(f.name)){toast(f.name+': bitte als .txt speichern');continue}
+            await addDoc(f.name.replace(/\.[^.]+$/,''),await f.text());
+           }
+           await rebuildSem(mk('#kp','#ks'));
+           await save();busy=false;head();docList();$('#ks').textContent='Fertig. Frag Flora jetzt im Chat. (Netz im Tab „Netz“ neu trainieren.)';toast('Wissen gespeichert ✓');
+          };
+          $('#ka').onclick=async()=>{
+           const t=$('#kx').value.trim();if(!t||busy)return;busy=true;
+           await addDoc($('#kt').value.trim()||'Eingefügter Text',t);
+           await rebuildSem(mk('#kp','#ks'));
+           await save();$('#kx').value='';$('#kt').value='';busy=false;head();docList();$('#ks').textContent='Fertig.';toast('Wissen gespeichert ✓');
+          };
+
+          /* Lernen */
           $('#tr').onclick=async()=>{
            const t=$('#tx').value.trim();if(!t||busy)return;busy=true;$('#tr').disabled=true;
            const before=M.n;
            await learn(t,(d,n)=>{prog('#lp',d,n);$('#ls').textContent='Verarbeite Zeile '+d+' von '+n});
-           save();$('#ls').textContent='Fertig: '+(M.n-before)+' neue Wortfolgen gelernt.';
+           await save();$('#ls').textContent='Fertig: '+(M.n-before)+' neue Wortfolgen gelernt.';
            $('#tx').value='';$('#tr').disabled=false;busy=false;head();toast('Flora hat gelernt ✓');
           };
 
+          /* Netz & Embeddings */
+          const mk=(bar,st)=>(l,d,n,x)=>{prog(bar,d,n);$(st).textContent=l+' '+d+'/'+n+(x?' · '+x:'')};
+          function nnInfo(){$('#ns').textContent=(EMB?'Embeddings: '+EMB.ix.size+' Wörter. ':'Noch keine Embeddings. ')+(NN?'Netz: '+(NN.E.length+NN.W1.length+NN.W2.length+NN.b1.length+NN.b2.length)+' Parameter, '+NN.V+' Wörter.':'Noch kein Netz trainiert.')}
+          $('#emb').onclick=async()=>{if(busy)return;busy=true;await rebuildSem(mk('#np','#ns'));await save();busy=false;nnInfo();toast('Embeddings fertig ✓')};
+          $('#nn').onclick=async()=>{
+           if(busy)return;busy=true;$('#nn').disabled=true;
+           const l=await trainNN((d,n,x)=>{prog('#np',d,n);$('#ns').textContent='Trainiere Netz '+d+'/'+n+' · '+x});
+           await save();$('#nn').disabled=false;busy=false;nnInfo();$('#ns').textContent+=' · fertig (Fehler '+l.toFixed(2)+')';toast('Netz trainiert ✓');
+          };
+
+          /* Testen */
           function ctxOf(){
            let t=tok($('#ti').value,false);
            const li=t.map(x=>END.has(x)).lastIndexOf(true);
@@ -317,7 +634,7 @@ jobs:
            return t.map(res);
           }
           function nextWords(){
-           const d=dist(ctxOf()).slice(0,8),box=$('#nw');box.innerHTML='';
+           chips();const d=distX(ctxOf()).slice(0,8),box=$('#nw');box.innerHTML='';
            if(!d.length){box.innerHTML='<p class="st">Keine Vorhersage – das Wort ist unbekannt.</p>';return}
            d.forEach(([w,p])=>{
             const r=document.createElement('div');r.className='nw';
@@ -328,6 +645,8 @@ jobs:
            });
           }
           $('#ti').oninput=nextWords;
+          function chips(){document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('alt',b.dataset.m!==MODE))}
+          document.querySelectorAll('#chips button').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;nextWords()});
           $('#cont').onclick=()=>{
            const c=ctxOf(),g=detok(gen(c,24,.8)),v=$('#ti').value.trim();
            $('#co').textContent=v?v+' → '+g:g;
@@ -338,24 +657,26 @@ jobs:
            for(let i=0;i<S.length;i++){
             const s=S[i];if(!END.has(s[s.length-1]))s.push('.');
             for(let j=0;j<s.length;j++){
-             const d=dist(s.slice(0,j).map(res)),w=res(s[j]),k=d.findIndex(x=>x[0]===w);
-             tot++;if(k===0)h1++;if(k>=0&&k<3)h3++;lp+=Math.log(k>=0?d[k][1]:1e-6);
+             const cx=s.slice(0,j).map(res),w=res(s[j]);let k,pr;
+             if(MODE==='nn'&&NN){const p=nnProbs(NN,nnIds(cx)),id=NN.ix.get(w.toLowerCase());pr=id===undefined?1e-6:p[id];k=0;if(id===undefined)k=-1;else for(let v=2;v<NN.V;v++)if(p[v]>pr)k++}
+             else{const d=distX(cx);k=d.findIndex(x=>x[0]===w);pr=k>=0?d[k][1]:1e-6}
+             tot++;if(k===0)h1++;if(k>=0&&k<3)h3++;lp+=Math.log(pr);
             }
             if(performance.now()-last>40){prog('#ep',i+1,S.length);await yieldUI();last=performance.now()}
            }
            prog('#ep',1,1);
-           $('#er').innerHTML='Getestete Wörter: <b>'+tot+'</b><br>Treffer Top-1: <b>'+(h1/tot*100).toFixed(1)+'%</b><br>Treffer Top-3: <b>'+(h3/tot*100).toFixed(1)+'%</b><br>Perplexität: <b>'+Math.exp(-lp/tot).toFixed(1)+'</b> (niedriger = besser)';
+           $('#er').innerHTML='Modell: <b>'+({ng:'N-Gramm',nn:'Neuronal',mix:'Gemischt'})[NN?MODE:'ng']+'</b><br>Getestete Wörter: <b>'+tot+'</b><br>Treffer Top-1: <b>'+(h1/tot*100).toFixed(1)+'%</b><br>Treffer Top-3: <b>'+(h3/tot*100).toFixed(1)+'%</b><br>Perplexität: <b>'+Math.exp(-lp/tot).toFixed(1)+'</b> (niedriger = besser)';
            $('#ev').disabled=false;busy=false;
           };
 
+          /* Modell */
           function stats(){
            const sz=k=>Object.keys(M[k]).reduce((a,x)=>a+Object.keys(M[k][x]).length,0);
-           const kb=(JSON.stringify(M).length/1024).toFixed(0);
-           const items=[[Object.keys(M.uni).length,'Wörter'],[sz('bi'),'Wortpaare'],[sz('tri'),'Trigramme'],[M.qa.length,'Frage-Antwort-Paare'],[M.n,'Trainierte Wörter'],[kb+' KB','Modellgröße']];
+           const mb=(JSON.stringify(M).length/1048576).toFixed(2);
+           const items=[[Object.keys(M.uni).length,'Wörter'],[sz('bi'),'Wortpaare'],[sz('tri'),'Trigramme'],[M.docs.length,'Dokumente'],[M.pas.length,'Wissenssätze'],[M.emb?M.emb.w.length:0,'Embedding-Wörter'],[NN?NN.E.length+NN.W1.length+NN.W2.length+NN.b1.length+NN.b2.length:0,'Netz-Parameter'],[M.qa.length,'Gelernte Antworten'],[M.n,'Trainierte Wörter'],[mb+' MB','Modellgröße']];
            $('#stats').innerHTML=items.map(i=>'<div class="card stat" style="margin:0"><b>'+i[0]+'</b><small>'+i[1]+'</small></div>').join('');
           }
-          const head=()=>$('#sub').textContent=Object.keys(M.uni).length+' Wörter · '+M.qa.length+' gelernte Antworten · offline';
-
+          const head=()=>$('#sub').textContent=Object.keys(M.uni).length+' Wörter · '+M.pas.length+' Wissenssätze · offline';
           $('#dl').onclick=async()=>{
            const s=JSON.stringify(M),P=window.Capacitor&&window.Capacitor.Plugins;
            try{
@@ -369,23 +690,43 @@ jobs:
           };
           $('#imp').onclick=()=>$('#fi').click();
           $('#fi').onchange=async e=>{
-           const f=e.target.files[0];if(!f)return;
-           try{const m=JSON.parse(await f.text());if(!m.uni||!m.bi||!m.tri||!m.qa)throw 0;M=m;save();head();stats();toast('Modell importiert ✓')}
-           catch(x){toast('Keine gültige Flora-Datei')}
-           e.target.value='';
+           const f=e.target.files[0];e.target.value='';if(!f||busy)return;
+           try{
+            const m=JSON.parse(await f.text());if(!m.uni||!m.bi||!m.tri)throw 0;
+            m.qa=m.qa||[];m.df=m.df||{};m.docs=m.docs||[];m.pas=m.pas||[];m.lines=m.lines||[];m.nd=m.nd||m.docs.length+1;M=m;busy=true;
+            EMB=m.emb?unpackEmb(m.emb):null;NN=m.nn?unpackNN(m.nn):null;PV=null;conv.ent='';
+            await buildIX((d,n)=>{$('#ks').textContent='Baue Index '+d+'/'+n});
+            if(!EMB)await trainEmb();await buildPV();
+            await save();busy=false;head();stats();toast('Modell importiert ✓');
+           }catch(x){busy=false;toast('Keine gültige Flora-Datei')}
           };
-          $('#rs').onclick=()=>{if(confirm('Alles vergessen und nur das Grundtraining laden?'))boot(true)};
+          $('#rs').onclick=()=>{if(!busy&&confirm('Alles vergessen und nur das Grundwissen laden?'))boot(true)};
 
           async function boot(force){
-           $('#boot').style.display='flex';busy=true;
-           if(!force){try{const s=localStorage.getItem(KEY);if(s)M=JSON.parse(s)}catch(e){}}
+           $('#boot').style.display='flex';busy=true;conv.ent='';
+           const B=(l,d,n,x)=>{prog('#bp',d,n);$('#bt').textContent=l+' '+d+'/'+n+(x?' · '+x:'')};
+           if(!force){try{M=(await idbGet('model'))||null}catch(e){M=null}}
+           if(M&&!M.pas)M=null;
            if(!M||force){
-            M=empty();
-            await learn(BASE,(d,n)=>{prog('#bp',d,n);$('#bt').textContent='Grundtraining: Zeile '+d+' von '+n});
-            save();
+            M=empty();newIX();EMB=null;NN=null;PV=null;
+            const tot=BASE_DOCS.length+1;let i=0;
+            for(const [t,x] of BASE_DOCS){
+             const k=i;await learnDoc(t,x,(d,n)=>{prog('#bp',k+d/n,tot);$('#bt').textContent='Grundwissen „'+t+'“: Satz '+d+' von '+n});i++;
+            }
+            await learn(BASE_TEXT,(d,n)=>{prog('#bp',i+d/n,tot);$('#bt').textContent='Sprachtraining: Zeile '+d+' von '+n});
+            await rebuildSem((l,d,n,x)=>B(l,d,n,x));
+            await trainNN((d,n,x)=>B('Neuronales Netz',d,n,x));
+            await save();
+           }else{
+            M.lines=M.lines||[];
+            await buildIX((d,n)=>B('Wissensindex',d,n));
+            EMB=M.emb?unpackEmb(M.emb):null;NN=M.nn?unpackNN(M.nn):null;
+            if(!EMB&&M.pas.length)await trainEmb((d,n,x)=>B('Embeddings',d,n,x));
+            await buildPV((d,n)=>B('Satz-Vektoren',d,n));
+            if(!NN){await trainNN((d,n,x)=>B('Neuronales Netz',d,n,x));await save()}
            }
-           $('#boot').style.display='none';busy=false;head();stats();
-           if(!log.children.length)bubble('fl','Hi, ich bin Flora. Schreib mir etwas, oder bring mir im Tab „Lernen“ neue Antworten bei.');
+           $('#boot').style.display='none';busy=false;head();stats();docList();chips();
+           if(!log.children.length)bubble('fl','Hi, ich bin Flora. Lade im Tab „Wissen“ Texte hoch und stell mir danach Fragen dazu.');
           }
           boot(false);
           </script></body></html>
