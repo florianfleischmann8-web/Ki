@@ -2,12 +2,15 @@ name: Build Flora APK
 
 on:
   push:
-    branches: [main, master]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -326,8 +329,8 @@ jobs:
           }
           $('#ti').oninput=nextWords;
           $('#cont').onclick=()=>{
-           const c=ctxOf();$('#co').textContent=detok(gen(c,24,.8)).replace(/^./,x=>x);
-           if($('#ti').value.trim())$('#co').textContent=$('#ti').value.trim()+' → '+detok(gen(c,24,.8));
+           const c=ctxOf(),g=detok(gen(c,24,.8)),v=$('#ti').value.trim();
+           $('#co').textContent=v?v+' → '+g:g;
           };
           $('#ev').onclick=async()=>{
            const text=$('#te').value.trim();if(!text||busy)return;busy=true;$('#ev').disabled=true;
