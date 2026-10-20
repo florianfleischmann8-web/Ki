@@ -1,4 +1,4 @@
-name: Build Flora APK
+name: Build Flora GPT APK
 
 on:
   push:
@@ -23,14 +23,14 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Flora-App schreiben (komplette KI steckt in index.html)
+      - name: Flora-GPT schreiben (kompletter Transformer steckt in index.html)
         run: |
           mkdir -p www
           cat > www/index.html <<'EOF'
           <!DOCTYPE html>
           <html lang="de"><head><meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-          <meta name="theme-color" content="#07060f"><title>Flora</title>
+          <meta name="theme-color" content="#07060f"><title>Flora GPT</title>
           <style>
           :root{--bg:#07060f;--g:rgba(255,255,255,.06);--b:rgba(255,255,255,.12);--v:#8b5cf6;--c:#22d3ee;--p:#f472b6;--t:#ece9ff;--m:#9b97bd}
           *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0}
@@ -51,684 +51,434 @@ jobs:
           .tab.on{display:flex}
           .card{background:var(--g);border:1px solid var(--b);backdrop-filter:blur(14px);border-radius:20px;padding:14px;margin-bottom:12px}
           #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0 10px}
-          .msg{max-width:88%;padding:11px 14px;border-radius:18px;line-height:1.4;font-size:15px;white-space:pre-wrap;animation:in .25s}
+          .msg{max-width:88%;padding:11px 14px;border-radius:18px;line-height:1.4;font-size:15px;white-space:pre-wrap;animation:in .25s;word-break:break-word}
           @keyframes in{from{opacity:0;transform:translateY(8px)}}
           .me{align-self:flex-end;background:linear-gradient(135deg,var(--v),#6d28d9);border-bottom-right-radius:5px}
           .fl{align-self:flex-start;background:var(--g);border:1px solid var(--b);border-bottom-left-radius:5px}
           .meta{display:block;font-size:11px;color:var(--m);margin-top:6px}
-          .meta a{color:var(--c);margin-left:8px}
-          .src{display:block;font-size:11px;color:var(--m);margin-top:6px;border-left:2px solid var(--c);padding-left:8px;line-height:1.35}
           .bar{display:flex;gap:8px;padding:6px 0}
-          input,textarea{flex:1;background:var(--g);border:1px solid var(--b);color:var(--t);border-radius:16px;padding:13px 15px;font-size:15px;outline:none;width:100%;font-family:inherit}
+          input,textarea,select{flex:1;background:var(--g);border:1px solid var(--b);color:var(--t);border-radius:16px;padding:12px 14px;font-size:15px;outline:none;width:100%;font-family:inherit}
+          select option{background:#1c1a33}
           input:focus,textarea:focus{border-color:var(--c);box-shadow:0 0 14px rgba(34,211,238,.3)}
-          textarea{min-height:150px;resize:none;margin-bottom:10px}
+          textarea{min-height:110px;resize:none;margin-bottom:10px}
           button{border:0;color:#fff;font-weight:600;font-size:15px;border-radius:16px;padding:13px 18px;background:linear-gradient(135deg,var(--v),var(--p));box-shadow:0 6px 20px rgba(139,92,246,.4)}
           button:active{transform:scale(.96)}button:disabled{opacity:.5}
           button.alt{background:var(--g);border:1px solid var(--b);box-shadow:none}
-          .row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
+          .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.row>*{flex:1}
+          label.f{display:block;font-size:12px;color:var(--m);margin:6px 0 4px}
           h3{font-size:14px;color:var(--c);margin-bottom:8px;letter-spacing:1px}
           p.h{color:var(--m);font-size:13px;line-height:1.45;margin-bottom:10px}
           .pr{height:8px;border-radius:8px;background:var(--g);overflow:hidden;margin:8px 0}
           .pr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--p));transition:width .1s}
-          .st{font-size:12px;color:var(--m)}
-          .nw{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
-          .nw b{width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-          .nw .pr{flex:1;margin:0;height:12px}.nw span{width:46px;text-align:right;color:var(--c)}
+          .st{font-size:12px;color:var(--m);line-height:1.5}
           .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-          .stat{text-align:center}.stat b{display:block;font-size:24px;background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;color:transparent}
+          .stat{text-align:center}.stat b{display:block;font-size:22px;background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;color:transparent}
           .stat small{color:var(--m);font-size:12px}
-          .doc{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--b);font-size:14px}
-          .doc div{flex:1;min-width:0}.doc b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-          .doc button{padding:8px 12px;font-size:14px}
+          canvas{width:100%;height:110px;display:block;border-radius:12px;background:rgba(0,0,0,.25)}
           nav{display:flex;margin:6px 10px calc(10px + env(safe-area-inset-bottom));background:var(--g);border:1px solid var(--b);backdrop-filter:blur(16px);border-radius:24px;padding:5px}
-          nav div{flex:1;text-align:center;padding:8px 0;border-radius:18px;font-size:10.5px;color:var(--m)}
+          nav div{flex:1;text-align:center;padding:8px 0;border-radius:18px;font-size:11px;color:var(--m)}
           nav div span{display:block;font-size:19px}
           nav div.on{background:linear-gradient(135deg,rgba(139,92,246,.45),rgba(244,114,182,.3));color:#fff}
           #boot{position:fixed;inset:0;z-index:9;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center}
           #boot .orb{width:90px;height:90px;margin-bottom:24px}#boot .orb:after{inset:9px}
-          #boot .pr{width:100%;max-width:300px}
-          #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#1c1a33;border:1px solid var(--b);padding:10px 16px;border-radius:14px;font-size:13px;z-index:10;opacity:0;transition:.3s;pointer-events:none}
+          #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#1c1a33;border:1px solid var(--b);padding:10px 16px;border-radius:14px;font-size:13px;z-index:10;opacity:0;transition:.3s;pointer-events:none;max-width:90%}
           #toast.on{opacity:1}
           </style></head><body>
-          <div id="boot"><div class="orb think"></div><h1>FLORA</h1><p class="st" id="bt" style="margin-top:14px">Starte…</p><div class="pr"><i id="bp"></i></div></div>
+          <div id="boot"><div class="orb think"></div><h1>FLORA</h1><p class="st" id="bt" style="margin-top:14px">Starte…</p></div>
           <div id="app">
-           <header><div class="orb" id="orb"></div><div><h1>FLORA</h1><small id="sub"></small></div></header>
+           <header><div class="orb" id="orb"></div><div><h1>FLORA GPT</h1><small id="sub"></small></div></header>
            <main>
             <section class="tab on" id="t-chat"><div id="log"></div>
-             <div class="bar"><input id="in" placeholder="Frag Flora etwas…" autocomplete="off"><button id="send">➤</button></div></section>
-            <section class="tab" id="t-know">
-             <div class="card"><h3>WISSEN HOCHLADEN</h3>
-              <p class="h">Lade Textdateien hoch (.txt, .md, .csv, .json). Flora merkt sich jeden Satz, durchsucht ihn bei Fragen und formuliert daraus ihre Antwort. PDF oder Word: bitte als .txt speichern oder den Text unten einfügen.</p>
-              <button id="up" style="width:100%">📄 Dateien auswählen</button>
-              <input type="file" id="fi2" accept=".txt,.md,.csv,.json,.html,text/*" multiple style="display:none">
-              <input id="kt" placeholder="Titel (für eingefügten Text)" style="margin-top:12px;margin-bottom:8px">
+             <div class="bar"><input id="in" placeholder="Schreib Flora…" autocomplete="off"><button id="send">➤</button></div></section>
+            <section class="tab" id="t-data">
+             <div class="card"><h3>TRAININGSDATEN</h3>
+              <p class="h"><b>Normaler Text</b> (Bücher, Artikel, Notizen) bringt Flora Sprache und Wissen bei. Zeilen im Format <b>Frage =&gt; Antwort</b> bringen ihr das Chatten bei. Beides kannst du mischen.</p>
+              <div class="row"><button id="up">📄 Dateien wählen</button><button class="alt" id="sm">Beispieldaten</button></div>
+              <input type="file" id="fi" accept=".txt,.md,.csv,.json,.jsonl,.html,text/*" multiple style="display:none">
               <textarea id="kx" placeholder="Oder Text hier einfügen…"></textarea>
-              <button id="ka" class="alt" style="width:100%">Text hinzufügen</button>
+              <button class="alt" id="ka" style="width:100%">Text hinzufügen</button>
               <div class="pr"><i id="kp"></i></div><div class="st" id="ks">Bereit.</div></div>
-             <div class="card"><h3>MEIN WISSEN</h3><div id="docs"></div></div></section>
-            <section class="tab" id="t-learn">
-             <div class="card"><h3>FREI TRAINIEREN</h3>
-              <p class="h">Normale Sätze trainieren Wortpaare und Wortfolgen (Schreibstil). Mit <b>Frage =&gt; Antwort</b> korrigierst du Flora gezielt.</p>
-              <textarea id="tx" style="min-height:190px" placeholder="Der Hund läuft schnell durch den Garten.&#10;Wie alt ist Anna? => Anna ist 31 Jahre alt."></textarea>
-              <button id="tr" style="width:100%">Jetzt trainieren</button>
-              <div class="pr"><i id="lp"></i></div><div class="st" id="ls">Bereit.</div></div></section>
-            <section class="tab" id="t-nn">
-             <div class="card"><h3>EMBEDDINGS &amp; NEURONALES NETZ</h3>
-              <p class="h"><b>Embeddings</b> geben jedem Wort Zahlen, sodass ähnliche Wörter nah beieinander liegen. Damit findet Flora auch Sätze mit ähnlicher Bedeutung. Das <b>Netz</b> lernt aus deinen Texten, welches Wort nach drei Wörtern folgt. Beides wird auf deinem Handy trainiert.</p>
-              <div class="row"><button id="emb" class="alt">Embeddings neu berechnen</button><button id="nn">Netz trainieren</button></div>
-              <div class="pr"><i id="np"></i></div><div class="st" id="ns" style="line-height:1.5">Bereit.</div></div></section>
-            <section class="tab" id="t-test">
-             <div class="card"><h3>NÄCHSTES WORT</h3>
-              <div class="row" id="chips" style="margin-bottom:10px"><button class="alt" data-m="ng">N-Gramm</button><button class="alt" data-m="nn">Neuronal</button><button data-m="mix">Gemischt</button></div>
-              <input id="ti" placeholder="Tippe einen Satzanfang…">
-              <div id="nw" style="margin-top:10px"></div>
-              <div class="row" style="margin-top:8px"><button class="alt" id="cont">Satz weiterschreiben</button></div>
-              <div class="st" id="co" style="margin-top:8px;line-height:1.4"></div></div>
-             <div class="card"><h3>MODELL TESTEN</h3>
-              <p class="h">Füge Testsätze ein. Gemessen wird, wie oft Flora das echte nächste Wort vorhersagt.</p>
-              <textarea id="te" style="min-height:110px" placeholder="Testsätze hier einfügen…"></textarea>
-              <button id="ev" style="width:100%">Test starten</button>
-              <div class="pr"><i id="ep"></i></div><div id="er" class="st" style="line-height:1.6"></div></div></section>
+             <div class="card"><h3>VORHANDENE DATEN</h3><div class="grid" id="dstats"></div>
+              <button class="alt" id="dc" style="width:100%;margin-top:10px">Alle Daten löschen</button></div></section>
+            <section class="tab" id="t-train">
+             <div class="card"><h3>TRAINING</h3>
+              <div class="row"><div><label class="f">Ziel-Schritte</label><input id="st" type="number" value="2000"></div><div><label class="f">Batch</label><input id="bs" type="number" value="4"></div><div><label class="f">Lernrate</label><input id="lr" type="number" step="0.0005" value="0.003"></div></div>
+              <button id="go" style="width:100%">▶ Training starten</button>
+              <canvas id="ch" width="600" height="220"></canvas>
+              <div class="st" id="ts" style="margin-top:8px">Noch nicht trainiert.</div>
+              <button class="alt" id="pb" style="width:100%;margin-top:10px">Probetext schreiben</button>
+              <div class="st" id="pt" style="margin-top:8px;white-space:pre-wrap"></div></div></section>
             <section class="tab" id="t-model">
-             <div class="card"><h3>MEIN FLORA-MODELL</h3><div class="grid" id="stats"></div></div>
-             <div class="card"><div class="row"><button id="dl">⬇ Modell herunterladen</button><button class="alt" id="imp">⬆ Importieren</button><button class="alt" id="rs">↺ Grundwissen</button></div>
-              <input type="file" id="fi" accept=".json,application/json" style="display:none">
-              <p class="h" style="margin-top:10px">Das Modell ist eine JSON-Datei mit allen Zählern, Wissenssätzen und gelernten Antworten. Es läuft komplett offline, ohne API-Key.</p></div></section>
+             <div class="card"><h3>MODELL</h3><div class="grid" id="mstats"></div></div>
+             <div class="card"><h3>NEUES MODELL</h3>
+              <select id="ps"><option value="klein">Klein · 120 Tsd. Parameter (schnell)</option><option value="mittel">Mittel · 840 Tsd. Parameter</option><option value="gross">Groß · 2,7 Mio. Parameter (sehr langsam)</option></select>
+              <button class="alt" id="nm" style="width:100%;margin-top:8px">Neu erstellen (löscht das aktuelle)</button></div>
+             <div class="card"><h3>AUSGABE</h3>
+              <div class="row"><div><label class="f">Temperatur</label><input id="tp" type="number" step="0.1" value="0.7"></div><div><label class="f">Top-k</label><input id="tk" type="number" value="20"></div></div></div>
+             <div class="card"><div class="row"><button id="dl">⬇ Modell herunterladen</button><button class="alt" id="imp">⬆ Importieren</button></div>
+              <input type="file" id="fm" accept=".json,application/json" style="display:none">
+              <p class="h">Die Datei enthält alle Gewichte. Mit dem Skript train_flora.py kannst du sie am PC mit einer Grafikkarte weitertrainieren und wieder importieren.</p></div></section>
            </main>
-           <nav><div class="on" data-t="chat"><span>💬</span>Chat</div><div data-t="know"><span>📚</span>Wissen</div><div data-t="learn"><span>✍️</span>Lernen</div><div data-t="nn"><span>🧠</span>Netz</div><div data-t="test"><span>🎯</span>Testen</div><div data-t="model"><span>📦</span>Modell</div></nav>
+           <nav><div class="on" data-t="chat"><span>💬</span>Chat</div><div data-t="data"><span>📚</span>Daten</div><div data-t="train"><span>🏋️</span>Training</div><div data-t="model"><span>📦</span>Modell</div></nav>
           </div><div id="toast"></div>
           <script>
-          const $=s=>document.querySelector(s),END=new Set(['.','!','?']);
-          const yieldUI=()=>new Promise(r=>setTimeout(r,0));
-          const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400)};
-          const tok=(t,l)=>(l?t.toLowerCase():t).match(/\p{N}+(?:[.,]\p{N}+)+|[\p{L}\p{N}']+|[.!?,;:]/gu)||[];
-          const PUNC=/^[.!?,;:]$/;
-          const empty=()=>({v:3,name:'Flora',uni:{},bi:{},tri:{},qa:[],df:{},n:0,docs:[],pas:[],nd:1,lines:[],emb:null,nn:null});
-          let M=null,busy=false,IX=null;
-          const conv={ent:''};
-
-          /* ===== Speicher (IndexedDB, passt auch große Texte) ===== */
-          const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('flora',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
-          async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
-          async function idbSet(k,v){const d=await idb();return new Promise((res,rej)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error)})}
-          async function save(){try{await idbSet('model',M);return true}catch(e){toast('Speichern fehlgeschlagen');return false}}
-
-          /* ===== Grundwissen & Sprachtraining (steckt im Code) ===== */
-          const BASE_DOCS=[
-          ['Über Flora',`Flora ist ein kleines Sprachmodell, das komplett offline auf dem Handy läuft. Flora zählt Wortpaare und Wortfolgen und berechnet daraus, welches Wort wahrscheinlich als nächstes kommt. Zusätzlich durchsucht Flora hochgeladene Texte nach passenden Stellen, wenn eine Frage gestellt wird. Auf dieser Grundlage formuliert Flora eigene Sätze und nennt die Textstelle als Quelle. Wer Flora trainieren möchte, lädt im Tab Wissen eigene Texte hoch. Flora benötigt weder Internet noch einen API-Key, weil alle Daten auf dem Gerät gespeichert bleiben.`],
-          ['Geografie',`Berlin ist die Hauptstadt von Deutschland und mit rund 3,7 Millionen Einwohnern die größte Stadt des Landes. Paris ist die Hauptstadt von Frankreich und liegt an der Seine. Wien ist die Hauptstadt von Österreich und liegt an der Donau. Bern ist die Hauptstadt der Schweiz, obwohl Zürich die größte Stadt ist. Rom ist die Hauptstadt von Italien und war das Zentrum des Römischen Reiches. Die Zugspitze ist mit 2962 Metern der höchste Berg Deutschlands. Der Rhein ist einer der längsten Flüsse Europas und fließt durch mehrere Länder bis in die Nordsee.`],
-          ['Natur',`Wasser besteht aus Wasserstoff und Sauerstoff und gefriert bei null Grad Celsius. Die Sonne ist ein Stern und liefert der Erde Licht und Wärme. Die Erde braucht etwa 365 Tage, um einmal um die Sonne zu laufen. Der Mond umkreist die Erde in etwa 27 Tagen. Pflanzen nehmen Kohlendioxid auf und erzeugen mit Hilfe von Licht Sauerstoff und Zucker. Bienen bestäuben Blüten und sind wichtig für viele Nutzpflanzen. Ein Jahr hat zwölf Monate und eine Woche hat sieben Tage.`],
-          ['Technik',`Eine künstliche Intelligenz ist ein Computerprogramm, das aus Beispielen lernt, statt nur feste Regeln zu befolgen. Ein Sprachmodell sagt voraus, welches Wort mit der größten Wahrscheinlichkeit auf eine Wortfolge folgt. Ein Bigramm ist ein Wortpaar, ein Trigramm besteht aus drei aufeinanderfolgenden Wörtern. Je mehr Text ein Sprachmodell zum Lernen bekommt, desto besser werden seine Vorhersagen. Ein Algorithmus ist eine genaue Anleitung, mit der ein Computer ein Problem Schritt für Schritt löst.`]];
-          const BASE_TEXT=`Der Hund läuft schnell durch den Garten.
-          Der Hund spielt gern mit dem Ball im Garten.
-          Die Katze schläft den ganzen Tag auf dem Sofa.
-          Das Wetter ist heute sehr schön und die Sonne scheint.
-          Das Wetter ist morgen etwas kälter und es regnet.
-          Ich gehe heute mit meinen Freunden in den Park.
-          Ich lese gern ein gutes Buch am Abend.
-          Wir essen heute Abend zusammen eine große Pizza.
-          Der Mond leuchtet in der Nacht über der Stadt.
-          Im Garten wachsen bunte Blumen und große Bäume.
-          Die Kinder spielen fröhlich auf dem Spielplatz.
-          Meine Freunde kommen am Wochenende zu Besuch.
-          Das Auto fährt schnell über die lange Straße.
-          Der Vogel singt jeden Morgen ein schönes Lied.
-          Eine gute Idee beginnt oft mit einer kleinen Frage.`;
-
-          /* ===== Wörter, Wortstämme, Index ===== */
-          const SW=new Set('der die das den dem des ein eine einen einem einer eines und oder aber ist sind war waren wird werden wurde wurden hat haben hatte mit von zu zur zum im in am an auf aus bei für fuer über ueber nach vor als auch nicht sich es er sie wir ihr ich du was wer wie wo wann warum wieso welche welcher welches wem wen wessen dass ob so dann noch nur kann können kannst bist bin sein seine ihre ihren mir mein dir dein mich dich uns gibt gib sag sage erkläre erzähl erzähle mehr viel sehr um lang lange etwa eigentlich denn doch mal diese dieser dieses diesen man habe hast'.split(' '));
-          const stem=w=>{if(w.length>6&&w.startsWith('ge'))w=w.slice(2);if(w.length>5)for(const s of ['ungen','ung','ern','ete','ten','en','et','er','es','em','te','e','n','s','t'])if(w.endsWith(s)&&w.length-s.length>=4)return w.slice(0,-s.length);return w};
-          const terms=t=>tok(t,true).filter(x=>!PUNC.test(x)&&!SW.has(x)&&x.length>1).map(stem);
-          const newIX=()=>IX={inv:new Map(),len:[],tot:0};
-          function indexP(pid){
-           const tm=terms(M.pas[pid].t),tf=new Map();
-           tm.forEach(t=>tf.set(t,(tf.get(t)||0)+1));IX.len[pid]=tm.length;IX.tot+=tm.length;
-           tf.forEach((c,t)=>{let m=IX.inv.get(t);if(!m){m=new Map();IX.inv.set(t,m)}m.set(pid,c)});
-          }
-          async function buildIX(cb){
-           newIX();let last=performance.now();
-           for(let i=0;i<M.pas.length;i++){indexP(i);if(performance.now()-last>40){cb&&cb(i+1,M.pas.length);await yieldUI();last=performance.now()}}
-           cb&&cb(M.pas.length,M.pas.length);
-          }
-
-          /* ===== Lernen ===== */
-          const sents=t=>t.split(/(?<=[.!?])\s+/).map(s=>tok(s,false)).filter(a=>a.length);
-          const psents=t=>t.replace(/\r/g,'').split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(s=>s.length>=25);
-          const inc=(o,k)=>{o[k]=(o[k]||0)+1};
-          function learnS(a,T=M){
-           if(!END.has(a[a.length-1]))a=[...a,'.'];
-           const s=['<s>','<s>',...a];
-           for(let i=2;i<s.length;i++){
-            const w=s[i],p=s[i-1],pp=s[i-2];
-            inc(T.uni,w);T.n++;
-            (T.bi[p]=T.bi[p]||{});inc(T.bi[p],w);
-            const k=pp+' '+p;(T.tri[k]=T.tri[k]||{});inc(T.tri[k],w);
+          /* ===== Flora-GPT: Transformer (decoder-only) mit eigener Backpropagation ===== */
+          const f32=n=>new Float32Array(n);
+          const PRESETS={klein:{V:256,d:64,L:2,H:4,T:96},mittel:{V:256,d:128,L:4,H:4,T:128},gross:{V:256,d:192,L:6,H:6,T:128}};
+          function layout(c){const o={};let p=0;const add=(n,s)=>{o[n]=p;p+=s},d=c.d;
+           add('tok',c.V*d);add('pos',c.T*d);
+           for(let l=0;l<c.L;l++){add('ln1g'+l,d);add('ln1b'+l,d);add('wq'+l,d*d);add('wk'+l,d*d);add('wv'+l,d*d);add('wo'+l,d*d);add('ln2g'+l,d);add('ln2b'+l,d);add('w1'+l,4*d*d);add('w2'+l,4*d*d)}
+           add('lnfg',d);add('lnfb',d);o.N=p;return o}
+          function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+          function newModel(cfg){
+           const o=layout(cfg),N=o.N,P=f32(N),d=cfg.d;
+           const rnd=(off,len,s)=>{for(let i=0;i<len;i++)P[off+i]=randn()*s};
+           rnd(o.tok,cfg.V*d,.02);rnd(o.pos,cfg.T*d,.02);
+           const rs=.02/Math.sqrt(2*cfg.L);
+           for(let l=0;l<cfg.L;l++){
+            for(let j=0;j<d;j++){P[o['ln1g'+l]+j]=1;P[o['ln2g'+l]+j]=1}
+            rnd(o['wq'+l],d*d,.02);rnd(o['wk'+l],d*d,.02);rnd(o['wv'+l],d*d,.02);rnd(o['wo'+l],d*d,rs);
+            rnd(o['w1'+l],4*d*d,.02);rnd(o['w2'+l],4*d*d,rs);
            }
+           for(let j=0;j<d;j++)P[o.lnfg+j]=1;
+           return wrap(cfg,P,0);
           }
-          function addQA(q,a){
-           const qt=tok(q,true).filter(x=>!PUNC.test(x));if(!qt.length)return;
-           const key=qt.join(' '),ex=M.qa.find(e=>e.q.join(' ')===key);
-           if(ex){ex.a=a;return}
-           M.qa.push({q:qt,a});new Set(qt).forEach(t=>inc(M.df,t));
+          function wrap(cfg,P,step){
+           const o=layout(cfg),N=o.N,mask=new Uint8Array(N);
+           for(let l=0;l<cfg.L;l++)for(const n of ['wq','wk','wv','wo','w1','w2'])mask.fill(1,o[n+l],o[n+l]+(n==='w1'||n==='w2'?4:1)*cfg.d*cfg.d);
+           return{cfg,o,P,G:f32(N),m:f32(N),v:f32(N),mask,step,hist:[],ws:null};
           }
-          async function learn(text,cb){
-           const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-           let last=performance.now();
-           for(let i=0;i<lines.length;i++){
-            const line=lines[i];
-            if(line.includes('=>')){
-             const [q,...r]=line.split('=>'),a=r.join('=>').trim();
-             if(q.trim()&&a){addQA(q,a);M.lines.push(a);sents(a).forEach(x=>learnS(x));sents(q).forEach(x=>learnS(x))}
-            }else{M.lines.push(line);sents(line).forEach(x=>learnS(x))}
-            if(performance.now()-last>40){cb&&cb(i+1,lines.length);await yieldUI();last=performance.now()}
-           }
-           if(M.lines.length>6000)M.lines.splice(0,M.lines.length-6000);
-           cb&&cb(lines.length,lines.length);
+          function mkWS(c){
+           const n=c.T,d=c.d,L=c.L,V=c.V,H=c.H,A=(k)=>Array.from({length:L},()=>f32(k));
+           return{x:Array.from({length:L+1},()=>f32(n*d)),xm:A(n*d),a:A(n*d),q:A(n*d),k:A(n*d),v:A(n*d),att:A(H*n*n),o:A(n*d),b:A(n*d),u:A(4*d*n),g:A(4*d*n),
+            mu1:A(n),rs1:A(n),mu2:A(n),rs2:A(n),f:f32(n*d),muf:f32(n),rsf:f32(n),lg:f32(n*V),
+            dX:Array.from({length:L+1},()=>f32(n*d)),dG:f32(4*d*n),dU:f32(4*d*n),dB:f32(n*d),dxm:f32(n*d),dO:f32(n*d),dq:f32(n*d),dk:f32(n*d),dv:f32(n*d),dA:f32(n*d),dF:f32(n*d)};
           }
-          async function learnDoc(title,text,cb){
-           const S=psents(text),id=M.nd++;M.docs.push({id,title,n:S.length});
-           let last=performance.now();
-           for(let i=0;i<S.length;i++){
-            M.pas.push({d:id,t:S[i]});indexP(M.pas.length-1);
-            const a=tok(S[i],false);if(a.length)learnS(a);
-            if(performance.now()-last>40){cb&&cb(i+1,S.length);await yieldUI();last=performance.now()}
-           }
-           cb&&cb(S.length,S.length);
-          }
+          function mm(C,A,B,bo,n,k,m){C.fill(0,0,n*m);for(let i=0;i<n;i++){const ci=i*m,ai=i*k;for(let j=0;j<k;j++){const a=A[ai+j];if(a===0)continue;const bj=bo+j*m;for(let p=0;p<m;p++)C[ci+p]+=a*B[bj+p]}}}
+          function mmNT(C,A,B,bo,n,k,m){for(let i=0;i<n;i++){const ai=i*k;for(let p=0;p<m;p++){const bp=bo+p*k;let s=0;for(let j=0;j<k;j++)s+=A[ai+j]*B[bp+j];C[i*m+p]=s}}}
+          function mmBT(dA,dC,B,bo,n,m,k){for(let i=0;i<n;i++){const ci=i*m;for(let j=0;j<k;j++){const bj=bo+j*m;let s=0;for(let p=0;p<m;p++)s+=dC[ci+p]*B[bj+p];dA[i*k+j]+=s}}}
+          function mmAT(G,go,A,C,n,k,m){for(let i=0;i<n;i++){const ci=i*m;for(let j=0;j<k;j++){const a=A[i*k+j];if(a===0)continue;const gj=go+j*m;for(let p=0;p<m;p++)G[gj+p]+=a*C[ci+p]}}}
+          function lnF(y,x,P,go,bo,n,d,mu,rs){for(let t=0;t<n;t++){const b=t*d;let m=0;for(let j=0;j<d;j++)m+=x[b+j];m/=d;let v=0;for(let j=0;j<d;j++){const e=x[b+j]-m;v+=e*e}v/=d;const r=1/Math.sqrt(v+1e-5);mu[t]=m;rs[t]=r;for(let j=0;j<d;j++)y[b+j]=(x[b+j]-m)*r*P[go+j]+P[bo+j]}}
+          function lnB(dx,dy,x,mu,rs,P,go,G,bo,n,d){for(let t=0;t<n;t++){const b=t*d;let s1=0,s2=0;for(let j=0;j<d;j++){const xh=(x[b+j]-mu[t])*rs[t],dxh=dy[b+j]*P[go+j];s1+=dxh;s2+=dxh*xh;G[go+j]+=dy[b+j]*xh;G[bo+j]+=dy[b+j]}
+           for(let j=0;j<d;j++){const xh=(x[b+j]-mu[t])*rs[t],dxh=dy[b+j]*P[go+j];dx[b+j]+=rs[t]*(dxh-s1/d-xh*s2/d)}}}
+          const GC=Math.sqrt(2/Math.PI);
+          const gelu=u=>.5*u*(1+Math.tanh(GC*(u+.044715*u*u*u)));
+          const dgelu=u=>{const t=Math.tanh(GC*(u+.044715*u*u*u));return .5*(1+t)+.5*u*(1-t*t)*GC*(1+3*.044715*u*u)};
 
-          /* ===== Wahrscheinlichkeit & Erzeugung ===== */
-          const sum=o=>{let s=0;for(const k in o)s+=o[k];return s};
-          function res(w){if(M.uni[w])return w;const l=w.toLowerCase();if(M.uni[l])return l;const c=w.charAt(0).toUpperCase()+w.slice(1);return M.uni[c]?c:w}
-          function distT(ctx,T){
-           const a=ctx[ctx.length-2]||'<s>',b=ctx[ctx.length-1]||'<s>';
-           const t=T.tri[a+' '+b]||{},bb=T.bi[b]||{},tt=sum(t),bt=sum(bb);
-           const c=new Set([...Object.keys(t),...Object.keys(bb)]),out=[];let z=0;
-           for(const w of c){
-            const p=(tt?.55*(t[w]||0)/tt:0)+(bt?.35*(bb[w]||0)/bt:0)+.1*(T.uni[w]||0)/(T.n||1);
-            out.push([w,p]);z+=p;
-           }
-           out.forEach(o=>o[1]/=z||1);
-           return out.sort((x,y)=>y[1]-x[1]);
-          }
-          const dist=ctx=>distT(ctx,M);
-          function mix(ctx,L,a){
-           const m=new Map();
-           distT(ctx,L).forEach(([w,p])=>m.set(w,a*p));
-           distT(ctx,M).forEach(([w,p])=>m.set(w,(m.get(w)||0)+(1-a)*p));
-           return [...m].sort((x,y)=>y[1]-x[1]);
-          }
-          function genL(seed,L,temp,max){
-           const ctx=[...seed];
-           for(let i=0;i<max;i++){
-            const d=mix(ctx,L,.85);if(!d.length)break;
-            let k=0;
-            if(temp>0){
-             const rec=ctx.slice(-8),ws=d.slice(0,25).map(([w,p])=>Math.pow(p,1/temp)*(rec.includes(w)&&!END.has(w)?.2:1));
-             let r=Math.random()*ws.reduce((x,y)=>x+y,0);
-             while(k<ws.length-1&&(r-=ws[k])>0)k++;
+          /* Vorwärts (+ optional Rückwärts). ids: n+1 Bytes. Gibt den mittleren Verlust zurück. */
+          function fwdbwd(M,ids,n,back,scale){
+           const c=M.cfg,o=M.o,P=M.P,G=M.G,d=c.d,L=c.L,H=c.H,V=c.V,dh=d/H,sc=1/Math.sqrt(dh),d4=4*d;
+           if(!M.ws)M.ws=mkWS(c);const w=M.ws;
+           for(let t=0;t<n;t++){const a=o.tok+ids[t]*d,b=o.pos+t*d,x=w.x[0];for(let j=0;j<d;j++)x[t*d+j]=P[a+j]+P[b+j]}
+           for(let l=0;l<L;l++){
+            const xi=w.x[l],xm=w.xm[l],xo=w.x[l+1],A=w.a[l],q=w.q[l],K=w.k[l],Vv=w.v[l],AT=w.att[l],O=w.o[l],B=w.b[l],U=w.u[l],Gg=w.g[l];
+            lnF(A,xi,P,o['ln1g'+l],o['ln1b'+l],n,d,w.mu1[l],w.rs1[l]);
+            mm(q,A,P,o['wq'+l],n,d,d);mm(K,A,P,o['wk'+l],n,d,d);mm(Vv,A,P,o['wv'+l],n,d,d);
+            for(let h=0;h<H;h++)for(let t=0;t<n;t++){
+             const qo=t*d+h*dh,ab=(h*n+t)*n;let mx=-1e30;
+             for(let s=0;s<=t;s++){const ko=s*d+h*dh;let dot=0;for(let j=0;j<dh;j++)dot+=q[qo+j]*K[ko+j];dot*=sc;AT[ab+s]=dot;if(dot>mx)mx=dot}
+             let z=0;for(let s=0;s<=t;s++){const e=Math.exp(AT[ab+s]-mx);AT[ab+s]=e;z+=e}
+             for(let j=0;j<dh;j++)O[qo+j]=0;
+             for(let s=0;s<=t;s++){const p=AT[ab+s]/z;AT[ab+s]=p;const vo=s*d+h*dh;for(let j=0;j<dh;j++)O[qo+j]+=p*Vv[vo+j]}
             }
-            ctx.push(d[k][0]);if(END.has(d[k][0]))break;
+            mm(xm,O,P,o['wo'+l],n,d,d);for(let i=0;i<n*d;i++)xm[i]+=xi[i];
+            lnF(B,xm,P,o['ln2g'+l],o['ln2b'+l],n,d,w.mu2[l],w.rs2[l]);
+            mm(U,B,P,o['w1'+l],n,d,d4);for(let i=0;i<n*d4;i++)Gg[i]=gelu(U[i]);
+            mm(xo,Gg,P,o['w2'+l],n,d4,d);for(let i=0;i<n*d;i++)xo[i]+=xm[i];
            }
-           if(!END.has(ctx[ctx.length-1]))ctx.push('.');
-           return ctx;
-          }
-          function gen(ctx,max,temp){
-           ctx=[...ctx];
-           for(let i=0;i<max;i++){
-            const d=distX(ctx);if(!d.length)break;
-            const rec=ctx.slice(-6),ws=d.slice(0,40).map(([w,p])=>Math.pow(p,1/temp)*(rec.includes(w)?.3:1));
-            let r=Math.random()*ws.reduce((x,y)=>x+y,0),k=0;
-            while(k<ws.length-1&&(r-=ws[k])>0)k++;
-            ctx.push(d[k][0]);if(END.has(d[k][0]))break;
+           lnF(w.f,w.x[L],P,o.lnfg,o.lnfb,n,d,w.muf,w.rsf);
+           mmNT(w.lg,w.f,P,o.tok,n,d,V);
+           let loss=0;const lg=w.lg;
+           for(let t=0;t<n;t++){
+            const r=t*V,y=ids[t+1];let mx=-1e30;for(let v=0;v<V;v++)if(lg[r+v]>mx)mx=lg[r+v];
+            let z=0;for(let v=0;v<V;v++){const e=Math.exp(lg[r+v]-mx);lg[r+v]=e;z+=e}
+            loss-=Math.log(lg[r+y]/z+1e-12);
+            for(let v=0;v<V;v++)lg[r+v]=(lg[r+v]/z)*scale/n;lg[r+y]-=scale/n;
            }
-           if(!END.has(ctx[ctx.length-1]))ctx.push('.');
-           return ctx;
-          }
-          const detok=a=>{const s=a.join(' ').replace(/\s+([.!?,;:])/g,'$1');return s.charAt(0).toUpperCase()+s.slice(1)};
-
-          /* ===== Embeddings (Word2Vec, selbst trainiert) & neuronales Netz ===== */
-          const ED=32,NN_D=24,NN_H=48,NN_V=800;
-          let EMB=null,PV=null,NN=null,MODE='mix',CM=null,CMn=-1;
-          const qz=(a,s)=>Array.from(a,x=>Math.round(x*s));
-          function unpackEmb(o){
-           const f=Float32Array.from(o.v,x=>x/500);
-           for(let i=0;i<o.w.length;i++){let z=0;for(let j=0;j<ED;j++)z+=f[i*ED+j]*f[i*ED+j];z=Math.sqrt(z)||1;for(let j=0;j<ED;j++)f[i*ED+j]/=z}
-           return{ix:new Map(o.w.map((w,i)=>[w,i])),v:f};
-          }
-          async function trainEmb(cb){
-           const S=M.pas.map(p=>terms(p.t)).filter(a=>a.length>1),f=new Map();
-           S.forEach(a=>a.forEach(w=>f.set(w,(f.get(w)||0)+1)));
-           const words=[...f].sort((a,b)=>b[1]-a[1]).slice(0,4000).map(x=>x[0]);
-           if(words.length<5){M.emb=null;EMB=null;return}
-           const ix=new Map(words.map((w,i)=>[w,i])),V=words.length;
-           const I=S.map(a=>a.filter(w=>ix.has(w)).map(w=>ix.get(w))).filter(a=>a.length>1);
-           let tw=0;words.forEach(w=>tw+=Math.pow(f.get(w),.75));
-           const tab=[];words.forEach((w,i)=>{const c=Math.max(1,Math.round(Math.pow(f.get(w),.75)*50000/tw));for(let k=0;k<c;k++)tab.push(i)});
-           const P=I.reduce((s,a)=>s+a.length*Math.min(8,a.length-1),0)||1;
-           const epochs=Math.max(3,Math.min(25,Math.round(150000/P)));
-           const Win=Float32Array.from({length:V*ED},()=>(Math.random()-.5)/ED),Wo=new Float32Array(V*ED),g=new Float32Array(ED);
-           const total=epochs*I.length;let done=0,last=performance.now();
-           for(let ep=0;ep<epochs;ep++){
-            const lr=.05-.04*ep/epochs;
-            for(let si=0;si<I.length;si++){
-             const a=I[si];
-             for(let i=0;i<a.length;i++){
-              const c=a[i]*ED;
-              for(let j=Math.max(0,i-4);j<Math.min(a.length,i+5);j++){
-               if(j===i)continue;g.fill(0);
-               for(let k=0;k<6;k++){
-                const t=k?tab[(Math.random()*tab.length)|0]:a[j];if(k&&t===a[j])continue;
-                const o=t*ED;let s=0;for(let d=0;d<ED;d++)s+=Win[c+d]*Wo[o+d];
-                const e=((k?0:1)-1/(1+Math.exp(-s)))*lr;
-                for(let d=0;d<ED;d++){g[d]+=e*Wo[o+d];Wo[o+d]+=e*Win[c+d]}
-               }
-               for(let d=0;d<ED;d++)Win[c+d]+=g[d];
-              }
-             }
-             done++;if(performance.now()-last>40){cb&&cb(done,total,'Epoche '+(ep+1)+'/'+epochs);await yieldUI();last=performance.now()}
+           loss/=n;if(!back)return loss;
+           /* ----- Rückwärts ----- */
+           mm(w.dF,lg,P,o.tok,n,V,d);mmAT(G,o.tok,lg,w.f,n,V,d);
+           w.dX[L].fill(0);lnB(w.dX[L],w.dF,w.x[L],w.muf,w.rsf,P,o.lnfg,G,o.lnfb,n,d);
+           for(let l=L-1;l>=0;l--){
+            const dxo=w.dX[l+1],dxi=w.dX[l],xi=w.x[l],xm=w.xm[l],A=w.a[l],q=w.q[l],K=w.k[l],Vv=w.v[l],AT=w.att[l],O=w.o[l],B=w.b[l],U=w.u[l],Gg=w.g[l];
+            w.dG.fill(0,0,n*d4);mmBT(w.dG,dxo,P,o['w2'+l],n,d,d4);mmAT(G,o['w2'+l],Gg,dxo,n,d4,d);
+            for(let i=0;i<n*d4;i++)w.dU[i]=w.dG[i]*dgelu(U[i]);
+            w.dB.fill(0,0,n*d);mmBT(w.dB,w.dU,P,o['w1'+l],n,d4,d);mmAT(G,o['w1'+l],B,w.dU,n,d,d4);
+            w.dxm.set(dxo.subarray(0,n*d));lnB(w.dxm,w.dB,xm,w.mu2[l],w.rs2[l],P,o['ln2g'+l],G,o['ln2b'+l],n,d);
+            w.dO.fill(0,0,n*d);mmBT(w.dO,w.dxm,P,o['wo'+l],n,d,d);mmAT(G,o['wo'+l],O,w.dxm,n,d,d);
+            w.dq.fill(0,0,n*d);w.dk.fill(0,0,n*d);w.dv.fill(0,0,n*d);
+            for(let h=0;h<H;h++)for(let t=0;t<n;t++){
+             const qo=t*d+h*dh,ab=(h*n+t)*n;let dot=0;const da=new Float32Array(t+1);
+             for(let s=0;s<=t;s++){const vo=s*d+h*dh;let x=0;for(let j=0;j<dh;j++)x+=w.dO[qo+j]*Vv[vo+j];da[s]=x;dot+=AT[ab+s]*x;for(let j=0;j<dh;j++)w.dv[vo+j]+=AT[ab+s]*w.dO[qo+j]}
+             for(let s=0;s<=t;s++){const ds=AT[ab+s]*(da[s]-dot)*sc,ko=s*d+h*dh;for(let j=0;j<dh;j++){w.dq[qo+j]+=ds*K[ko+j];w.dk[ko+j]+=ds*q[qo+j]}}
             }
+            w.dA.fill(0,0,n*d);
+            mmBT(w.dA,w.dq,P,o['wq'+l],n,d,d);mmAT(G,o['wq'+l],A,w.dq,n,d,d);
+            mmBT(w.dA,w.dk,P,o['wk'+l],n,d,d);mmAT(G,o['wk'+l],A,w.dk,n,d,d);
+            mmBT(w.dA,w.dv,P,o['wv'+l],n,d,d);mmAT(G,o['wv'+l],A,w.dv,n,d,d);
+            dxi.set(w.dxm.subarray(0,n*d));lnB(dxi,w.dA,xi,w.mu1[l],w.rs1[l],P,o['ln1g'+l],G,o['ln1b'+l],n,d);
            }
-           M.emb={w:words,v:qz(Win,500)};EMB=unpackEmb(M.emb);cb&&cb(total,total);
-          }
-          function sv(tm){
-           const v=new Float32Array(ED),N=M.pas.length||1;let any=false;
-           for(const t of tm){
-            const i=EMB.ix.get(t);if(i===undefined)continue;
-            const m=IX.inv.get(t),n=m?m.size:0,w=Math.log(1+(N-n+.5)/(n+.5));
-            for(let j=0;j<ED;j++)v[j]+=w*EMB.v[i*ED+j];any=true;
-           }
-           if(!any)return null;
-           let z=0;for(let j=0;j<ED;j++)z+=v[j]*v[j];z=Math.sqrt(z)||1;for(let j=0;j<ED;j++)v[j]/=z;
-           return v;
-          }
-          async function buildPV(cb){
-           PV=null;if(!EMB||!M.pas.length)return;
-           const N=M.pas.length,pv=new Float32Array(N*ED);let last=performance.now();
-           for(let i=0;i<N;i++){
-            const v=sv(terms(M.pas[i].t));if(v)pv.set(v,i*ED);
-            if(performance.now()-last>40){cb&&cb(i+1,N);await yieldUI();last=performance.now()}
-           }
-           PV=pv;cb&&cb(N,N);
-          }
-          async function rebuildSem(cb){
-           await trainEmb((d,n,x)=>cb&&cb('Embeddings',d,n,x));
-           await buildPV((d,n)=>cb&&cb('Satz-Vektoren',d,n));
-          }
-          /* neuronales Netz: 3 Wörter Kontext -> verdeckte Schicht (tanh) -> Wahrscheinlichkeit für jedes Wort */
-          function packNN(n){return{w:n.w,E:qz(n.E,1000),W1:qz(n.W1,1000),b1:qz(n.b1,1000),W2:qz(n.W2,1000),b2:qz(n.b2,1000)}}
-          function unpackNN(o){const f=a=>Float32Array.from(a,x=>x/1000);return{w:o.w,V:o.w.length,ix:new Map(o.w.map((w,i)=>[w,i])),E:f(o.E),W1:f(o.W1),b1:f(o.b1),W2:f(o.W2),b2:f(o.b2)}}
-          function nnProbs(n,ids,keep){
-           const d=NN_D,H=NN_H,V=n.V,x=new Float32Array(3*d),h=new Float32Array(H),z=new Float32Array(V);
-           for(let k=0;k<3;k++){const o=ids[k]*d;for(let j=0;j<d;j++)x[k*d+j]=n.E[o+j]}
-           for(let i=0;i<H;i++)h[i]=n.b1[i];
-           for(let j=0;j<3*d;j++){const xj=x[j],o=j*H;for(let i=0;i<H;i++)h[i]+=xj*n.W1[o+i]}
-           for(let i=0;i<H;i++)h[i]=Math.tanh(h[i]);
-           for(let v=0;v<V;v++)z[v]=n.b2[v];
-           for(let i=0;i<H;i++){const hi=h[i],o=i*V;for(let v=0;v<V;v++)z[v]+=hi*n.W2[o+v]}
-           let mx=-1e9;for(let v=0;v<V;v++)if(z[v]>mx)mx=z[v];
-           let t=0;for(let v=0;v<V;v++){z[v]=Math.exp(z[v]-mx);t+=z[v]}
-           for(let v=0;v<V;v++)z[v]/=t;
-           return keep?{x,h,p:z}:z;
-          }
-          function nnStep(n,ids,y,lr){
-           const {x,h,p}=nnProbs(n,ids,true),d=NN_D,H=NN_H,V=n.V,loss=-Math.log(p[y]+1e-9);
-           p[y]-=1;
-           const dh=new Float32Array(H),dx=new Float32Array(3*d);
-           for(let i=0;i<H;i++){let s=0;const o=i*V;for(let v=0;v<V;v++)s+=p[v]*n.W2[o+v];dh[i]=s*(1-h[i]*h[i])}
-           for(let i=0;i<H;i++){const o=i*V,hi=h[i]*lr;for(let v=0;v<V;v++)n.W2[o+v]-=hi*p[v]}
-           for(let v=0;v<V;v++)n.b2[v]-=lr*p[v];
-           for(let j=0;j<3*d;j++){let s=0;const o=j*H;for(let i=0;i<H;i++)s+=dh[i]*n.W1[o+i];dx[j]=s}
-           for(let j=0;j<3*d;j++){const o=j*H,xj=x[j]*lr;for(let i=0;i<H;i++)n.W1[o+i]-=xj*dh[i]}
-           for(let i=0;i<H;i++)n.b1[i]-=lr*dh[i];
-           for(let k=0;k<3;k++){const o=ids[k]*d;for(let j=0;j<d;j++)n.E[o+j]-=lr*dx[k*d+j]}
+           const dx=w.dX[0];
+           for(let t=0;t<n;t++){const a=o.tok+ids[t]*d,b=o.pos+t*d;for(let j=0;j<d;j++){G[a+j]+=dx[t*d+j];G[b+j]+=dx[t*d+j]}}
            return loss;
           }
-          async function trainNN(cb){
-           const T=[...M.pas.map(p=>p.t),...M.lines].map(t=>tok(t,true)).filter(a=>a.length>1);
-           if(!T.length)return 0;
-           const f=new Map();T.forEach(a=>a.forEach(w=>f.set(w,(f.get(w)||0)+1)));
-           const words=['<s>','<unk>',...[...f].sort((a,b)=>b[1]-a[1]).slice(0,NN_V-2).map(x=>x[0])],ix=new Map(words.map((w,i)=>[w,i])),V=words.length;
-           const S=[];
-           for(const a of T){const b=END.has(a[a.length-1])?a:[...a,'.'];let c=[0,0,0];for(const w of b){const y=ix.has(w)?ix.get(w):1;S.push(c[0],c[1],c[2],y);c=[c[1],c[2],y]}}
-           const n=Math.floor(S.length/4),d=NN_D,H=NN_H,r=(k,s)=>Float32Array.from({length:k},()=>(Math.random()-.5)*s);
-           const net={w:words,V,ix,E:r(V*d,.2),W1:r(3*d*H,.3),b1:new Float32Array(H),W2:r(H*V,.3),b2:new Float32Array(V)};
-           const per=Math.min(n,8000),epochs=Math.max(3,Math.min(30,Math.round(60000/per))),total=per*epochs;
-           const order=Array.from({length:n},(_,i)=>i);let done=0,last=performance.now(),ll=0;
-           for(let ep=0;ep<epochs;ep++){
-            for(let i=n-1;i>0;i--){const j=(Math.random()*(i+1))|0;[order[i],order[j]]=[order[j],order[i]]}
-            const lr=.08*(1-ep/epochs)+.01;let loss=0;
-            for(let k=0;k<per;k++){
-             const o=order[k]*4;loss+=nnStep(net,[S[o],S[o+1],S[o+2]],S[o+3],lr);done++;
-             if(performance.now()-last>40){cb&&cb(done,total,'Epoche '+(ep+1)+'/'+epochs+' · Fehler '+(loss/(k+1)).toFixed(2));await yieldUI();last=performance.now()}
+          function adamStep(M,lr,wd,clip){
+           const N=M.P.length,P=M.P,G=M.G,m=M.m,v=M.v,mask=M.mask;let g2=0;
+           for(let i=0;i<N;i++)g2+=G[i]*G[i];
+           const gn=Math.sqrt(g2),cs=gn>clip?clip/gn:1;M.step++;
+           const b1=.9,b2=.95,c1=1-Math.pow(b1,M.step),c2=1-Math.pow(b2,M.step);
+           for(let i=0;i<N;i++){const g=G[i]*cs;m[i]=b1*m[i]+(1-b1)*g;v[i]=b2*v[i]+(1-b2)*g*g;P[i]-=lr*((m[i]/c1)/(Math.sqrt(v[i]/c2)+1e-8)+(mask[i]?wd*P[i]:0));G[i]=0}
+           return gn;
+          }
+          /* ===== Textgenerierung mit KV-Cache ===== */
+          function mkCache(M){const c=M.cfg;return{k:Array.from({length:c.L},()=>f32(c.T*c.d)),v:Array.from({length:c.L},()=>f32(c.T*c.d)),pos:0,x:f32(c.d),a:f32(c.d),q:f32(c.d),o:f32(c.d),b:f32(c.d),u:f32(4*c.d),t:f32(c.d),lg:f32(c.V),sc:f32(c.T)}}
+          function stepTok(M,C,id){
+           const c=M.cfg,o=M.o,P=M.P,d=c.d,H=c.H,dh=d/H,sc=1/Math.sqrt(dh),pos=C.pos,x=C.x,d4=4*d;
+           for(let j=0;j<d;j++)x[j]=P[o.tok+id*d+j]+P[o.pos+pos*d+j];
+           const ln=(y,xx,g,b)=>{let m=0;for(let j=0;j<d;j++)m+=xx[j];m/=d;let v=0;for(let j=0;j<d;j++){const e=xx[j]-m;v+=e*e}const r=1/Math.sqrt(v/d+1e-5);for(let j=0;j<d;j++)y[j]=(xx[j]-m)*r*P[g+j]+P[b+j]};
+           for(let l=0;l<c.L;l++){
+            ln(C.a,x,o['ln1g'+l],o['ln1b'+l]);
+            mm(C.q,C.a,P,o['wq'+l],1,d,d);mm(C.t,C.a,P,o['wk'+l],1,d,d);C.k[l].set(C.t,pos*d);mm(C.t,C.a,P,o['wv'+l],1,d,d);C.v[l].set(C.t,pos*d);
+            const K=C.k[l],Vv=C.v[l];
+            for(let h=0;h<H;h++){
+             let mx=-1e30;for(let s=0;s<=pos;s++){let dot=0;for(let j=0;j<dh;j++)dot+=C.q[h*dh+j]*K[s*d+h*dh+j];dot*=sc;C.sc[s]=dot;if(dot>mx)mx=dot}
+             let z=0;for(let s=0;s<=pos;s++){C.sc[s]=Math.exp(C.sc[s]-mx);z+=C.sc[s]}
+             for(let j=0;j<dh;j++){let s2=0;for(let s=0;s<=pos;s++)s2+=C.sc[s]*Vv[s*d+h*dh+j];C.o[h*dh+j]=s2/z}
             }
-            ll=loss/per;
+            mm(C.t,C.o,P,o['wo'+l],1,d,d);for(let j=0;j<d;j++)x[j]+=C.t[j];
+            ln(C.b,x,o['ln2g'+l],o['ln2b'+l]);
+            mm(C.u,C.b,P,o['w1'+l],1,d,d4);for(let i=0;i<d4;i++)C.u[i]=gelu(C.u[i]);
+            mm(C.t,C.u,P,o['w2'+l],1,d4,d);for(let j=0;j<d;j++)x[j]+=C.t[j];
            }
-           NN=net;M.nn=packNN(net);cb&&cb(total,total,'Fehler '+ll.toFixed(2));return ll;
+           ln(C.a,x,o.lnfg,o.lnfb);mmNT(C.lg,C.a,P,o.tok,1,d,c.V);C.pos++;return C.lg;
           }
-          function nnIds(ctx){const r=ctx.slice(-3).map(w=>{const i=NN.ix.get(w.toLowerCase());return i===undefined?1:i});while(r.length<3)r.unshift(0);return r}
-          function caseMap(){
-           if(CM&&CMn===M.n)return CM;
-           CM=new Map();const best={};
-           for(const w in M.uni){const l=w.toLowerCase();if(!best[l]||M.uni[w]>M.uni[best[l]])best[l]=w}
-           for(const l in best)CM.set(l,best[l]);CMn=M.n;return CM;
+          function sample(lg,temp,topk,recent){
+           const V=lg.length,idx=Array.from({length:V},(_,i)=>i);
+           const l=Array.from(lg);for(const r of recent)if(r>3)l[r]-=.3;
+           idx.sort((a,b)=>l[b]-l[a]);const k=Math.min(topk,V);
+           if(temp<=0.01)return idx[0];
+           let mx=l[idx[0]],z=0;const p=[];for(let i=0;i<k;i++){const e=Math.exp((l[idx[i]]-mx)/temp);p.push(e);z+=e}
+           let r=Math.random()*z;for(let i=0;i<k;i++){r-=p[i];if(r<=0)return idx[i]}return idx[0];
           }
-          function distX(ctx){
-           const d=dist(ctx);if(!NN||MODE==='ng')return d;
-           const p=nnProbs(NN,nnIds(ctx)),cm=caseMap(),top=[];
-           for(let v=2;v<NN.V;v++)top.push(v);
-           top.sort((a,b)=>p[b]-p[a]);
-           if(MODE==='nn')return top.slice(0,12).map(v=>[cm.get(NN.w[v])||NN.w[v],p[v]]);
-           const m=new Map(d.map(([w,pg])=>[w,[pg,0]]));
-           top.slice(0,10).forEach(v=>{const w=cm.get(NN.w[v])||NN.w[v];if(!m.has(w))m.set(w,[0,0])});
-           let z=0;m.forEach((e,w)=>{const id=NN.ix.get(w.toLowerCase());e[1]=id===undefined?0:p[id];z+=e[1]});
-           return[...m].map(([w,[pg,pn]])=>[w,.5*pg+.5*(z?pn/z:0)]).sort((a,b)=>b[1]-a[1]);
+          async function generate(M,prompt,opt,onTok,yieldFn){
+           const T=M.cfg.T;let ctx=Array.from(prompt).slice(-(T-40)),C=mkCache(M),out=[];
+           const feed=a=>{C=mkCache(M);let lg=null;for(const t of a)lg=stepTok(M,C,t);return lg};
+           let lg=feed(ctx);
+           for(let i=0;i<opt.max;i++){
+            const id=sample(lg,opt.temp,opt.topk,ctx.slice(-24));
+            if(id===3)break;ctx.push(id);out.push(id);onTok&&onTok(id);
+            if(C.pos>=T)lg=feed(ctx.slice(-(T>>1)));else lg=stepTok(M,C,id);
+            if(yieldFn&&i%4===3)await yieldFn();
+           }
+           return out;
           }
+          /* ===== Speichern / Laden ===== */
+          function b64(f){const u=new Uint8Array(f.buffer,f.byteOffset,f.byteLength);let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)}
+          function unb64(s){const r=atob(s),u=new Uint8Array(r.length);for(let i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return new Float32Array(u.buffer)}
+          function exportModel(M){return JSON.stringify({format:'flora-gpt-1',cfg:M.cfg,step:M.step,w:b64(M.P)})}
+          function importModel(txt){const j=JSON.parse(txt);if(j.format!=='flora-gpt-1')throw new Error('Format');const P=unb64(j.w);if(P.length!==layout(j.cfg).N)throw new Error('Größe');return wrap(j.cfg,P,j.step||0)}
+          /* ===== App ===== */
+          const $=s=>document.querySelector(s),enc=new TextEncoder(),dec=new TextDecoder();
+          const yieldUI=()=>new Promise(r=>setTimeout(r,0));
+          const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)};
+          let M=null,DS={corpus:new Uint8Array(0),chat:new Uint8Array(0),starts:new Int32Array(0)},training=false,busy=false,conv=[];
+          const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('flora_gpt',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+          async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+          async function idbSet(k,v){const d=await idb();return new Promise((res,rej)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error)})}
+          async function saveModel(){try{await idbSet('gpt',{cfg:M.cfg,P:M.P,m:M.m,v:M.v,step:M.step,hist:M.hist})}catch(e){toast('Speichern fehlgeschlagen')}}
+          async function saveData(){try{await idbSet('data',DS)}catch(e){toast('Daten konnten nicht gespeichert werden')}}
+          function restore(o){const m=wrap(o.cfg,o.P,o.step);m.m=o.m;m.v=o.v;m.hist=o.hist||[];return m}
+          const nParams=c=>layout(c).N;
+          const fmt=n=>n>=1e6?(n/1e6).toFixed(2)+' Mio.':n>=1e3?(n/1e3).toFixed(0)+' Tsd.':String(n);
+          const kb=n=>n>=1048576?(n/1048576).toFixed(2)+' MB':(n/1024).toFixed(0)+' KB';
 
-          /* ===== Gesprächskontext ===== */
-          const PRON=/\b(er|sie|ihn|ihm|ihr|ihre|ihren|ihrer|sein|seine|seinen|seiner|seinem|dessen|deren|dort|davon|dazu)\b/i;
-          function capRun(t,allowFirst){
-           const runs=[];let run=[];
-           t.forEach((x,i)=>{if(/^\p{Lu}/u.test(x)){run.push([x,i])}else{if(run.length)runs.push(run);run=[]}});
-           if(run.length)runs.push(run);
-           for(let r of runs){
-            r=r.filter(([x])=>!SW.has(x.toLowerCase()));
-            if(!r.length)continue;
-            if(r.length===1&&r[0][1]===0&&!allowFirst)continue;
-            return r.map(x=>x[0]).join(' ');
-           }
-           return '';
-          }
-          function resolve(q){
-           if(!conv.ent)return q;
-           const t=tok(q,false),hasEnt=capRun(t,false);
-           if(PRON.test(q))return q.replace(PRON,conv.ent);
-           if(!hasEnt&&terms(q).length<=1)return q.replace(/[?!.]*\s*$/,'')+' '+conv.ent+'?';
-           return q;
-          }
+          const SAMPLE=`Hallo => Hallo! Ich bin Flora. Wie kann ich helfen?
+          Hi => Hi! Schön, dass du da bist.
+          Guten Morgen => Guten Morgen! Ich wünsche dir einen schönen Tag.
+          Wie geht es dir => Mir geht es gut, danke. Und dir?
+          Wer bist du => Ich bin Flora, ein kleines Sprachmodell, das auf deinem Handy trainiert wurde.
+          Wie heißt du => Ich heiße Flora.
+          Was kannst du => Ich kann Fragen beantworten und Texte schreiben, soweit ich es gelernt habe.
+          Wie funktionierst du => Ich bin ein Transformer und sage Byte für Byte voraus, was als Nächstes kommt.
+          Was ist ein Transformer => Ein Transformer ist ein neuronales Netz, das mit Attention erkennt, welche Teile eines Textes zusammengehören.
+          Was ist eine KI => Eine KI ist ein Programm, das aus Beispielen lernt.
+          Was ist ein neuronales Netz => Ein neuronales Netz besteht aus vielen verbundenen Rechenknoten, deren Gewichte beim Training angepasst werden.
+          Danke => Gern geschehen!
+          Tschüss => Tschüss! Bis bald.
+          Was ist die Hauptstadt von Deutschland => Die Hauptstadt von Deutschland ist Berlin.
+          Was ist die Hauptstadt von Frankreich => Die Hauptstadt von Frankreich ist Paris.
+          Was ist die Hauptstadt von Italien => Die Hauptstadt von Italien ist Rom.
+          Was ist die Hauptstadt von Österreich => Die Hauptstadt von Österreich ist Wien.
+          Was ist die Hauptstadt von Spanien => Die Hauptstadt von Spanien ist Madrid.
+          Was ist die Hauptstadt von der Schweiz => Die Hauptstadt der Schweiz ist Bern.
+          Wie viele Tage hat eine Woche => Eine Woche hat sieben Tage.
+          Wie viele Monate hat ein Jahr => Ein Jahr hat zwölf Monate.
+          Wie viele Beine hat eine Spinne => Eine Spinne hat acht Beine.
+          Wie viele Knochen hat ein Mensch => Ein erwachsener Mensch hat 206 Knochen.
+          Woraus besteht Wasser => Wasser besteht aus Wasserstoff und Sauerstoff.
+          Wie heißt der größte Planet => Der größte Planet unseres Sonnensystems ist Jupiter.
+          Welche Farbe hat der Himmel => Der Himmel ist tagsüber blau.
+          Wann fiel die Berliner Mauer => Die Berliner Mauer fiel am 9. November 1989.
+          Wer schrieb Faust => Johann Wolfgang von Goethe schrieb Faust.
+          Wer entdeckte das Penicillin => Alexander Fleming entdeckte 1928 das Penicillin.
+          Was ist 2 plus 2 => 2 plus 2 ist 4.
+          Was ist 10 minus 3 => 10 minus 3 ist 7.
+          Flora ist ein kleines Sprachmodell, das komplett auf dem Handy läuft.
+          Ein Sprachmodell sagt voraus, welches Zeichen mit der größten Wahrscheinlichkeit als nächstes kommt.
+          Die Sonne ist ein Stern und liefert der Erde Licht und Wärme.
+          Berlin ist die Hauptstadt von Deutschland und liegt an der Spree.`;
 
-          /* ===== Wissenssuche (BM25 + Embeddings) ===== */
-          function search(q,ent){
-           const entT=new Set(ent?terms(ent):[]);
-           const qt=[...new Set(terms(q))],N=M.pas.length,sc=new Map(),idf={},wt={};
-           const cap=new Set();tok(q,false).forEach((x,i)=>{if(i>0&&/^\p{Lu}/u.test(x))cap.add(stem(x.toLowerCase()))});
-           const avg=(IX.tot/N)||1;let tot=0;
-           for(const t of qt){
-            const m=IX.inv.get(t),n=m?m.size:0,b=cap.has(t)?1.5:1;
-            idf[t]=Math.log(1+(N-n+.5)/(n+.5))*b*(entT.has(t)?.4:1);
-            wt[t]=m?idf[t]:idf[t]*(cap.has(t)?1:.25);tot+=wt[t];
-            if(m)m.forEach((tf,pid)=>sc.set(pid,(sc.get(pid)||0)+idf[t]*tf*2.2/(tf+1.2*(.25+.75*IX.len[pid]/avg))));
+          /* ---------- Daten ---------- */
+          function parseInto(text,P){
+           for(const line of text.split(/\r?\n/)){
+            const s=line.trim();if(!s)continue;const i=s.indexOf('=>');
+            if(i>0){const q=s.slice(0,i).trim(),a=s.slice(i+2).trim();
+             if(q&&a){const b=new Uint8Array([1,...enc.encode(q),2,...enc.encode(a),3]);P.starts.push(P.cl);P.chat.push(b);P.cl+=b.length;continue}}
+            P.corpus.push(enc.encode(s+'\n'));
            }
-           const bm=[...sc].sort((a,b)=>b[1]-a[1]).slice(0,12),mx=bm.length?bm[0][1]:1,cand=new Set(bm.map(x=>x[0]));
-           let cs=null;
-           if(EMB&&PV){
-            const qv=sv(qt);
-            if(qv){
-             cs=new Float32Array(N);const ca=[];
-             for(let p=0;p<N;p++){let s=0;for(let j=0;j<ED;j++)s+=qv[j]*PV[p*ED+j];cs[p]=s;if(s>.5)ca.push([p,s])}
-             ca.sort((a,b)=>b[1]-a[1]).slice(0,12).forEach(x=>cand.add(x[0]));
+          }
+          const cat=(a,extra)=>{const n=a.reduce((s,x)=>s+x.length,0),o=new Uint8Array(n+extra.length);o.set(extra,0);let p=extra.length;for(const x of a){o.set(x,p);p+=x.length}return o};
+          function mergeData(P){
+           DS={corpus:cat(P.corpus,DS.corpus),chat:cat(P.chat,DS.chat),starts:Int32Array.from([...DS.starts,...P.starts.map(x=>x+DS.chat.length)])};
+          }
+          async function addTexts(items){
+           if(busy||training)return;busy=true;
+           const P={corpus:[],chat:[],starts:[],cl:0};
+           for(let i=0;i<items.length;i++){
+            $('#ks').textContent='Lese '+items[i].name+' ('+(i+1)+'/'+items.length+')';$('#kp').style.width=(i/items.length*100)+'%';await yieldUI();
+            parseInto(items[i].text,P);
+           }
+           mergeData(P);$('#kp').style.width='100%';$('#ks').textContent='Speichere…';await yieldUI();await saveData();
+           busy=false;$('#ks').textContent='Fertig.';dstats();toast('Daten hinzugefügt ✓');
+          }
+          function dstats(){
+           const it=[[kb(DS.corpus.length),'Fließtext'],[DS.starts.length,'Frage-Antwort-Paare'],[kb(DS.chat.length),'Chat-Daten'],[fmt(DS.corpus.length+DS.chat.length),'Bytes (Tokens)']];
+           $('#dstats').innerHTML=it.map(i=>'<div class="card stat" style="margin:0"><b>'+i[0]+'</b><small>'+i[1]+'</small></div>').join('');
+          }
+          $('#up').onclick=()=>$('#fi').click();
+          $('#fi').onchange=async e=>{
+           const fs=[...e.target.files];e.target.value='';if(!fs.length)return;
+           const items=[];for(const f of fs){if(/\.(pdf|docx?|pptx?|xlsx?)$/i.test(f.name)){toast(f.name+': bitte als .txt speichern');continue}items.push({name:f.name,text:await f.text()})}
+           if(items.length)await addTexts(items);
+          };
+          $('#ka').onclick=async()=>{const t=$('#kx').value.trim();if(!t)return;await addTexts([{name:'Eingefügter Text',text:t}]);$('#kx').value=''};
+          $('#sm').onclick=()=>addTexts([{name:'Beispieldaten',text:SAMPLE}]);
+          $('#dc').onclick=async()=>{if(training||!confirm('Alle Trainingsdaten löschen? Das Modell bleibt erhalten.'))return;DS={corpus:new Uint8Array(0),chat:new Uint8Array(0),starts:new Int32Array(0)};await saveData();dstats()};
+
+          /* ---------- Training ---------- */
+          function batchSeq(T){
+           const hasC=DS.corpus.length>0,hasP=DS.starts.length>0,useChat=hasP&&(!hasC||Math.random()<.5);
+           let src,st;
+           if(useChat){src=DS.chat;st=DS.starts[(Math.random()*DS.starts.length)|0]}else{src=DS.corpus;st=(Math.random()*Math.max(1,src.length-T-1))|0}
+           if(st+T+1>src.length)st=Math.max(0,src.length-T-1);
+           const a=src.subarray(st,st+T+1);
+           if(a.length<T+1){const p=new Uint8Array(T+1).fill(10);p.set(a);return p}
+           return a;
+          }
+          function chart(){
+           const c=$('#ch'),g=c.getContext('2d'),h=M.hist,W=c.width,H=c.height;g.clearRect(0,0,W,H);if(h.length<2)return;
+           const mx=Math.max(...h),mn=Math.min(...h),n=h.length;
+           g.strokeStyle='#22d3ee';g.lineWidth=3;g.beginPath();
+           for(let i=0;i<n;i++){const x=i/(n-1)*(W-10)+5,y=H-8-(h[i]-mn)/((mx-mn)||1)*(H-16);i?g.lineTo(x,y):g.moveTo(x,y)}
+           g.stroke();
+          }
+          async function trainLoop(){
+           if(training){training=false;return}
+           if(!DS.corpus.length&&!DS.starts.length){toast('Füge erst Daten im Tab Daten hinzu');return}
+           if(busy)return;
+           const B=Math.max(1,+$('#bs').value||4),base=+$('#lr').value||.003,total=Math.max(1,+$('#st').value||2000),T=M.cfg.T;
+           training=true;busy=true;$('#go').textContent='⏹ Stopp';$('#orb').classList.add('think');
+           let t0=performance.now(),tok=0,ema=M.hist.length?M.hist[M.hist.length-1]:null,lastSave=performance.now(),lastUI=0;
+           while(training&&M.step<total){
+            let l=0,ok=true;
+            for(let b=0;b<B;b++){
+             l+=fwdbwd(M,batchSeq(T),T,true,1/B);tok+=T;await yieldUI();
+             if(!training){ok=false;break}
             }
-           }
-           let hits=[...cand].map(p=>[p,.65*((sc.get(p)||0)/mx)+.35*Math.max(0,cs?cs[p]:0)]).sort((a,b)=>b[1]-a[1]);
-           if(/\b(wann|jahr|jahre|wie viele|wie viel|wieviel|wie lang|wie alt|wie groß|wie hoch)\b/i.test(q)&&hits.length)
-            hits=hits.map(([p,s])=>[p,/\d/.test(M.pas[p].t)?s+.1:s]).sort((a,b)=>b[1]-a[1]);
-           const top=hits.slice(0,4);let cov=0;
-           if(top.length&&tot){
-            const set=new Set();top.slice(0,3).forEach(([p])=>terms(M.pas[p].t).forEach(t=>set.add(t)));
-            for(const t of qt)if(set.has(t))cov+=wt[t];
-            cov/=tot;
-           }
-           return{hits:top,cov,sem:cs&&top.length?cs[top[0][0]]:0,qt,idf};
-          }
-
-          async function answer(q,cb,ent){
-           /* 1) von dir korrigierte Antworten */
-           const qt=tok(q,true).filter(x=>!PUNC.test(x)),N=M.qa.length;
-           const idf=t=>Math.log(1+(N+1)/((M.df[t]||0)+.5)),w=new Map();
-           qt.forEach(t=>w.set(t,idf(t)));
-           const qn=Math.sqrt([...w.values()].reduce((a,b)=>a+b*b,0))||1;
-           let best=0,bi=-1;
-           for(let i=0;i<N;i++){
-            const s=M.qa[i];let dot=0,sn=0;
-            for(const t of new Set(s.q)){const x=idf(t);sn+=x*x;if(w.has(t))dot+=x*w.get(t)}
-            const sc=dot/(qn*Math.sqrt(sn||1));
-            if(sc>best){best=sc;bi=i}
-            if(i%150===149){cb('Vergleiche gelernte Antworten',i+1,N);await yieldUI()}
-           }
-           if(bi>=0&&best>=.6)return{text:M.qa[bi].a,mode:'von dir gelernt',conf:best,src:''};
-           /* 2) Wissen durchsuchen */
-           cb('Durchsuche Wissen',1,2);await yieldUI();
-           const r=search(q,ent);
-           if(!r.hits.length||(r.cov<.34&&r.sem<.85))return{text:'Dazu finde ich nichts in meinem Wissen. Lade im Tab „Wissen“ Texte hoch, die dazu passen.',mode:'kein Treffer',conf:r.cov,src:''};
-           /* 3) pro Textstelle ein lokales Sprachmodell, damit keine Fakten vermischt werden */
-           const top=r.hits.slice(0,3),Ls=top.map(([p])=>{const L=empty(),a=tok(M.pas[p].t,false);if(a.length)learnS(a,L);return L}),cands=[];
-           let step=0;const total=top.length*3;
-           for(let s=0;s<top.length;s++){
-            const seed=tok(M.pas[top[s][0]].t,false).slice(0,2);
-            for(const tmp of [0,.4,.4]){
-             cands.push({a:genL(seed,Ls[s],tmp,40),s});
-             cb('Formuliere Antwortvarianten',++step,total);await yieldUI();
+            if(!ok){M.G.fill(0);break}
+            const s=M.step,lr=base*Math.min(1,(s+1)/50)*(.1+.9*.5*(1+Math.cos(Math.PI*Math.min(1,s/total))));
+            adamStep(M,lr,.01,1);l/=B;ema=ema==null?l:ema*.95+.05*l;
+            M.hist.push(+ema.toFixed(3));if(M.hist.length>600){M.hist=M.hist.filter((_,i)=>i%2===0)}
+            const now=performance.now();
+            if(now-lastUI>400){
+             lastUI=now;const tps=tok/((now-t0)/1000),eta=(total-M.step)*B*T/tps;
+             $('#ts').textContent='Schritt '+M.step+' / '+total+' · Verlust '+ema.toFixed(3)+' (≈ '+Math.exp(ema).toFixed(1)+' Möglichkeiten pro Zeichen) · '+Math.round(tps)+' Token/s · noch ca. '+(eta>3600?(eta/3600).toFixed(1)+' h':Math.ceil(eta/60)+' min');
+             chart();head();
             }
+            if(now-lastSave>60000){await saveModel();lastSave=performance.now()}
            }
-           const score=c=>{
-            const L=Ls[c.s],ws=c.a.filter(x=>!PUNC.test(x));if(ws.length<4)return -1;
-            const st=new Set(terms(ws.join(' ')));let cv=0,tt=0;
-            for(const t of r.qt){tt+=r.idf[t];if(st.has(t))cv+=r.idf[t]}
-            let f=0,n=0;
-            for(let i=2;i<c.a.length;i++){n++;const k=L.tri[c.a[i-2]+' '+c.a[i-1]];if(k&&k[c.a[i]])f++}
-            const faith=n?f/n:0;if(faith<.85)return -1;
-            let fl=0;
-            if(NN){let sp=0,mm=0;for(let i=1;i<c.a.length;i++){const id=NN.ix.get(c.a[i].toLowerCase());if(id===undefined)continue;sp+=Math.log(nnProbs(NN,nnIds(c.a.slice(0,i)))[id]+1e-9);mm++}fl=mm?Math.exp(sp/mm):0}
-            return(tt?cv/tt:0)+.5*faith+.3*fl+.3*(new Set(ws).size/ws.length)-(ws.length>45?.3:0)+(c.s===0?.15:0);
-           };
-           cands.forEach(c=>c.sc=score(c));cands.sort((a,b)=>b.sc-a.sc);
-           const b1=cands[0];
-           if(!b1||b1.sc<0)return{text:'Dazu finde ich nichts Sicheres in meinem Wissen.',mode:'kein Treffer',conf:r.cov,src:''};
-           let text=detok(b1.a),ex=false;
-           if(/^\s*(was ist|was sind|erkl|beschreib|erzähl|fasse|nenne|wer ist|wer war)/i.test(q)){
-            ex=true;
-           }
-           const eT=new Set(ent?terms(ent):[]),keyT=r.qt.filter(t=>!eT.has(t)).sort((a,b)=>r.idf[b]-r.idf[a]).slice(0,2);
-           const b2=cands.find(c=>c.s!==b1.s&&c.sc>.5&&r.hits[c.s][1]>=(ex?.75:.85)*r.hits[b1.s][1]&&(!keyT.length||terms(M.pas[top[c.s][0]].t).some(t=>keyT.includes(t))));
-           if(b2)text+=' '+detok(b2.a);
-           const key=r.qt.filter(t=>IX.inv.has(t)).sort((a,b)=>r.idf[b]-r.idf[a])[0];
-           if(key&&!terms(text).includes(key)){
-            const o=tok(q,false).find(x=>stem(x.toLowerCase())===key);
-            if(o)text='Zu „'+o+'“: '+text;
-           }
-           if(ent)text=text.replace(/(^|[.!?]\s+)(Er|Sie)\b/g,(m,a)=>a+ent);
-           const p0=M.pas[r.hits[0][0]],dt=(M.docs.find(d=>d.id===p0.d)||{}).title||'';
-           return{text,mode:'aus Wissen',conf:Math.max(r.cov,r.sem>=.85?r.sem:0),src:'Quelle: '+dt+' – „'+p0.t.slice(0,150)+(p0.t.length>150?'…':'')+'“'};
+           training=false;busy=false;$('#go').textContent='▶ Training starten';$('#orb').classList.remove('think');
+           await saveModel();chart();head();mstats();
+           $('#ts').textContent+=M.step>=total?' · Ziel erreicht ✓':' · gestoppt, gespeichert ✓';
           }
+          $('#go').onclick=trainLoop;
+          const outOpt=()=>({max:240,temp:+$('#tp').value||.7,topk:+$('#tk').value||20});
+          $('#pb').onclick=async()=>{
+           if(busy)return;busy=true;$('#pt').textContent='…';
+           const o=await generate(M,[1,...enc.encode('Hallo'),2],outOpt(),null,yieldUI);
+           $('#pt').textContent='Nutzer: Hallo\nFlora: '+dec.decode(Uint8Array.from(o));busy=false;
+          };
 
-          /* ===== UI ===== */
+          /* ---------- Chat ---------- */
           const log=$('#log');
           function bubble(cls,txt){const d=document.createElement('div');d.className='msg '+cls;d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
           async function send(){
            const q=$('#in').value.trim();if(!q||busy)return;
-           $('#in').value='';busy=true;bubble('me',q);
-           const b=bubble('fl','');b.innerHTML='<span class="st"></span><div class="pr"><i></i></div>';
-           const st=b.querySelector('.st'),bar=b.querySelector('i');$('#orb').classList.add('think');
-           const rq=resolve(q),used=rq!==q?conv.ent:'';
-           const r=await answer(rq,(txt,d,t)=>{st.textContent=txt+' '+d+'/'+t;bar.style.width=(t?d/t*100:0)+'%'},used);
-           $('#orb').classList.remove('think');
-           b.textContent=r.text;
-           if(r.src){const s=document.createElement('span');s.className='src';s.textContent=r.src;b.appendChild(s)}
-           const m=document.createElement('span');m.className='meta';
-           m.textContent=r.mode+(r.mode!=='kein Treffer'?' · '+Math.round(Math.min(1,r.conf)*100)+'% Übereinstimmung':'')+(rq!==q?' · verstanden als: „'+rq+'“':'');
-           const ne=capRun(tok(rq,false),false)||(r.mode==='aus Wissen'?capRun(tok(r.text,false),true):'');if(ne)conv.ent=ne;
-           const a=document.createElement('a');a.textContent='✎ korrigieren';
-           a.onclick=()=>{$('#tx').value=q+' => ';tab('learn');$('#tx').focus()};
-           m.appendChild(a);b.appendChild(m);log.scrollTop=log.scrollHeight;busy=false;
+           $('#in').value='';busy=true;bubble('me',q);const b=bubble('fl','…');$('#orb').classList.add('think');
+           const T=M.cfg.T;let p=[];
+           for(const h of conv.slice(-3))p.push(1,...enc.encode(h.q),2,...enc.encode(h.a),3);
+           p.push(1,...enc.encode(q),2);
+           if(p.length>T-48){p=p.slice(-(T-48));const k=p.indexOf(1);if(k>0)p=p.slice(k)}
+           const bytes=[];let t0=performance.now();
+           const o=await generate(M,p,outOpt(),id=>{bytes.push(id);if(bytes.length%6===0){b.textContent=dec.decode(Uint8Array.from(bytes));log.scrollTop=log.scrollHeight}},yieldUI);
+           const a=dec.decode(Uint8Array.from(o))||'(keine Antwort)';b.textContent=a;
+           const m=document.createElement('span');m.className='meta';m.textContent=o.length+' Zeichen · '+(o.length/((performance.now()-t0)/1000)).toFixed(0)+' Zeichen/s · Modell nach '+M.step+' Schritten';b.appendChild(m);
+           conv.push({q,a});$('#orb').classList.remove('think');busy=false;log.scrollTop=log.scrollHeight;
           }
+          $('#send').onclick=send;$('#in').onkeydown=e=>{if(e.key==='Enter')send()};
+
+          /* ---------- Modell ---------- */
+          function head(){$('#sub').textContent=fmt(nParams(M.cfg))+' Parameter · '+M.step+' Trainingsschritte'}
+          function mstats(){
+           const c=M.cfg,last=M.hist.length?M.hist[M.hist.length-1]:null;
+           const it=[[fmt(nParams(c)),'Parameter'],[M.step,'Schritte'],[c.L+' × '+c.H,'Schichten × Köpfe'],[c.d,'Breite'],[c.T,'Kontext (Zeichen)'],[last==null?'–':last.toFixed(2),'Verlust']];
+           $('#mstats').innerHTML=it.map(i=>'<div class="card stat" style="margin:0"><b>'+i[0]+'</b><small>'+i[1]+'</small></div>').join('');
+          }
+          $('#nm').onclick=async()=>{
+           if(busy||training||!confirm('Aktuelles Modell löschen und ein neues, untrainiertes erstellen?'))return;
+           M=newModel(PRESETS[$('#ps').value]);await saveModel();head();mstats();chart();conv=[];toast('Neues Modell erstellt');
+          };
+          $('#dl').onclick=async()=>{
+           if(busy)return;const s=exportModel(M),P=window.Capacitor&&window.Capacitor.Plugins;
+           try{
+            if(P&&P.Filesystem&&P.Share){
+             await P.Filesystem.writeFile({path:'flora-gpt.json',data:s,directory:'CACHE',encoding:'utf8'});
+             const u=await P.Filesystem.getUri({path:'flora-gpt.json',directory:'CACHE'});
+             await P.Share.share({title:'Flora GPT Modell',url:u.uri});return;
+            }
+           }catch(e){}
+           const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));a.download='flora-gpt.json';a.click();
+          };
+          $('#imp').onclick=()=>$('#fm').click();
+          $('#fm').onchange=async e=>{
+           const f=e.target.files[0];e.target.value='';if(!f||busy||training)return;
+           try{M=importModel(await f.text());await saveModel();head();mstats();chart();toast('Modell importiert ✓')}catch(x){toast('Keine gültige Flora-GPT-Datei')}
+          };
           function tab(n){
            document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.id==='t-'+n));
            document.querySelectorAll('nav div').forEach(e=>e.classList.toggle('on',e.dataset.t===n));
-           if(n==='model')stats();if(n==='nn')nnInfo();if(n==='test')nextWords();if(n==='know')docList();
+           if(n==='model')mstats();if(n==='data')dstats();if(n==='train')chart();
           }
           document.querySelectorAll('nav div').forEach(e=>e.onclick=()=>tab(e.dataset.t));
-          $('#send').onclick=send;$('#in').onkeydown=e=>{if(e.key==='Enter')send()};
-          const prog=(id,d,t)=>$(id).style.width=(t?d/t*100:0)+'%';
 
-          /* Wissen */
-          function docList(){
-           const box=$('#docs');box.innerHTML='';
-           if(!M.docs.length){box.innerHTML='<p class="st">Noch kein Wissen geladen.</p>';return}
-           M.docs.forEach(d=>{
-            const r=document.createElement('div');r.className='doc';
-            r.innerHTML='<div><b></b><span class="st">'+d.n+' Sätze</span></div><button class="alt">🗑</button>';
-            r.querySelector('b').textContent=d.title;
-            r.querySelector('button').onclick=async()=>{
-             if(busy||!confirm('„'+d.title+'“ entfernen?'))return;busy=true;
-             M.pas=M.pas.filter(p=>p.d!==d.id);M.docs=M.docs.filter(x=>x.id!==d.id);
-             await buildIX((a,n)=>{prog('#kp',a,n);$('#ks').textContent='Baue Index neu '+a+'/'+n});
-             await rebuildSem(mk('#kp','#ks'));
-             await save();busy=false;head();docList();$('#ks').textContent='Entfernt. Gelernte Wortpaare bleiben erhalten.';
-            };
-            box.appendChild(r);
-           });
+          async function boot(){
+           try{const o=await idbGet('gpt');if(o)M=restore(o)}catch(e){}
+           try{const d=await idbGet('data');if(d)DS=d}catch(e){}
+           if(!M)M=newModel(PRESETS.klein);
+           $('#boot').style.display='none';head();dstats();mstats();
+           bubble('fl',M.step?'Hi, ich bin Flora. Schreib mir etwas!':'Hi! Ich bin Flora, ein echtes GPT-Modell, aber noch ohne Training. Füge im Tab Daten Texte hinzu und starte das Training, danach kann ich antworten.');
           }
-          async function addDoc(title,text){
-           await learnDoc(title,text,(d,n)=>{prog('#kp',d,n);$('#ks').textContent=title+': Satz '+d+' von '+n});
-          }
-          $('#up').onclick=()=>$('#fi2').click();
-          $('#fi2').onchange=async e=>{
-           if(busy)return;const fs=[...e.target.files];e.target.value='';if(!fs.length)return;busy=true;
-           for(const f of fs){
-            if(/\.(pdf|docx?|pptx?|xlsx?)$/i.test(f.name)){toast(f.name+': bitte als .txt speichern');continue}
-            await addDoc(f.name.replace(/\.[^.]+$/,''),await f.text());
-           }
-           await rebuildSem(mk('#kp','#ks'));
-           await save();busy=false;head();docList();$('#ks').textContent='Fertig. Frag Flora jetzt im Chat. (Netz im Tab „Netz“ neu trainieren.)';toast('Wissen gespeichert ✓');
-          };
-          $('#ka').onclick=async()=>{
-           const t=$('#kx').value.trim();if(!t||busy)return;busy=true;
-           await addDoc($('#kt').value.trim()||'Eingefügter Text',t);
-           await rebuildSem(mk('#kp','#ks'));
-           await save();$('#kx').value='';$('#kt').value='';busy=false;head();docList();$('#ks').textContent='Fertig.';toast('Wissen gespeichert ✓');
-          };
-
-          /* Lernen */
-          $('#tr').onclick=async()=>{
-           const t=$('#tx').value.trim();if(!t||busy)return;busy=true;$('#tr').disabled=true;
-           const before=M.n;
-           await learn(t,(d,n)=>{prog('#lp',d,n);$('#ls').textContent='Verarbeite Zeile '+d+' von '+n});
-           await save();$('#ls').textContent='Fertig: '+(M.n-before)+' neue Wortfolgen gelernt.';
-           $('#tx').value='';$('#tr').disabled=false;busy=false;head();toast('Flora hat gelernt ✓');
-          };
-
-          /* Netz & Embeddings */
-          const mk=(bar,st)=>(l,d,n,x)=>{prog(bar,d,n);$(st).textContent=l+' '+d+'/'+n+(x?' · '+x:'')};
-          function nnInfo(){$('#ns').textContent=(EMB?'Embeddings: '+EMB.ix.size+' Wörter. ':'Noch keine Embeddings. ')+(NN?'Netz: '+(NN.E.length+NN.W1.length+NN.W2.length+NN.b1.length+NN.b2.length)+' Parameter, '+NN.V+' Wörter.':'Noch kein Netz trainiert.')}
-          $('#emb').onclick=async()=>{if(busy)return;busy=true;await rebuildSem(mk('#np','#ns'));await save();busy=false;nnInfo();toast('Embeddings fertig ✓')};
-          $('#nn').onclick=async()=>{
-           if(busy)return;busy=true;$('#nn').disabled=true;
-           const l=await trainNN((d,n,x)=>{prog('#np',d,n);$('#ns').textContent='Trainiere Netz '+d+'/'+n+' · '+x});
-           await save();$('#nn').disabled=false;busy=false;nnInfo();$('#ns').textContent+=' · fertig (Fehler '+l.toFixed(2)+')';toast('Netz trainiert ✓');
-          };
-
-          /* Testen */
-          function ctxOf(){
-           let t=tok($('#ti').value,false);
-           const li=t.map(x=>END.has(x)).lastIndexOf(true);
-           if(li>=0)t=t.slice(li+1);
-           return t.map(res);
-          }
-          function nextWords(){
-           chips();const d=distX(ctxOf()).slice(0,8),box=$('#nw');box.innerHTML='';
-           if(!d.length){box.innerHTML='<p class="st">Keine Vorhersage – das Wort ist unbekannt.</p>';return}
-           d.forEach(([w,p])=>{
-            const r=document.createElement('div');r.className='nw';
-            r.innerHTML='<b></b><div class="pr"><i style="width:'+(p*100/d[0][1]).toFixed(0)+'%"></i></div><span>'+(p*100).toFixed(1)+'%</span>';
-            r.firstChild.textContent=w;
-            r.onclick=()=>{const i=$('#ti');i.value=(i.value+(END.has(w)?'':' ')+w).trim();nextWords()};
-            box.appendChild(r);
-           });
-          }
-          $('#ti').oninput=nextWords;
-          function chips(){document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('alt',b.dataset.m!==MODE))}
-          document.querySelectorAll('#chips button').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;nextWords()});
-          $('#cont').onclick=()=>{
-           const c=ctxOf(),g=detok(gen(c,24,.8)),v=$('#ti').value.trim();
-           $('#co').textContent=v?v+' → '+g:g;
-          };
-          $('#ev').onclick=async()=>{
-           const text=$('#te').value.trim();if(!text||busy)return;busy=true;$('#ev').disabled=true;
-           const S=sents(text);let tot=0,h1=0,h3=0,lp=0,last=performance.now();
-           for(let i=0;i<S.length;i++){
-            const s=S[i];if(!END.has(s[s.length-1]))s.push('.');
-            for(let j=0;j<s.length;j++){
-             const cx=s.slice(0,j).map(res),w=res(s[j]);let k,pr;
-             if(MODE==='nn'&&NN){const p=nnProbs(NN,nnIds(cx)),id=NN.ix.get(w.toLowerCase());pr=id===undefined?1e-6:p[id];k=0;if(id===undefined)k=-1;else for(let v=2;v<NN.V;v++)if(p[v]>pr)k++}
-             else{const d=distX(cx);k=d.findIndex(x=>x[0]===w);pr=k>=0?d[k][1]:1e-6}
-             tot++;if(k===0)h1++;if(k>=0&&k<3)h3++;lp+=Math.log(pr);
-            }
-            if(performance.now()-last>40){prog('#ep',i+1,S.length);await yieldUI();last=performance.now()}
-           }
-           prog('#ep',1,1);
-           $('#er').innerHTML='Modell: <b>'+({ng:'N-Gramm',nn:'Neuronal',mix:'Gemischt'})[NN?MODE:'ng']+'</b><br>Getestete Wörter: <b>'+tot+'</b><br>Treffer Top-1: <b>'+(h1/tot*100).toFixed(1)+'%</b><br>Treffer Top-3: <b>'+(h3/tot*100).toFixed(1)+'%</b><br>Perplexität: <b>'+Math.exp(-lp/tot).toFixed(1)+'</b> (niedriger = besser)';
-           $('#ev').disabled=false;busy=false;
-          };
-
-          /* Modell */
-          function stats(){
-           const sz=k=>Object.keys(M[k]).reduce((a,x)=>a+Object.keys(M[k][x]).length,0);
-           const mb=(JSON.stringify(M).length/1048576).toFixed(2);
-           const items=[[Object.keys(M.uni).length,'Wörter'],[sz('bi'),'Wortpaare'],[sz('tri'),'Trigramme'],[M.docs.length,'Dokumente'],[M.pas.length,'Wissenssätze'],[M.emb?M.emb.w.length:0,'Embedding-Wörter'],[NN?NN.E.length+NN.W1.length+NN.W2.length+NN.b1.length+NN.b2.length:0,'Netz-Parameter'],[M.qa.length,'Gelernte Antworten'],[M.n,'Trainierte Wörter'],[mb+' MB','Modellgröße']];
-           $('#stats').innerHTML=items.map(i=>'<div class="card stat" style="margin:0"><b>'+i[0]+'</b><small>'+i[1]+'</small></div>').join('');
-          }
-          const head=()=>$('#sub').textContent=Object.keys(M.uni).length+' Wörter · '+M.pas.length+' Wissenssätze · offline';
-          $('#dl').onclick=async()=>{
-           const s=JSON.stringify(M),P=window.Capacitor&&window.Capacitor.Plugins;
-           try{
-            if(P&&P.Filesystem&&P.Share){
-             await P.Filesystem.writeFile({path:'flora-modell.json',data:s,directory:'CACHE',encoding:'utf8'});
-             const u=await P.Filesystem.getUri({path:'flora-modell.json',directory:'CACHE'});
-             await P.Share.share({title:'Flora Modell',url:u.uri});return;
-            }
-           }catch(e){}
-           const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'application/json'}));a.download='flora-modell.json';a.click();
-          };
-          $('#imp').onclick=()=>$('#fi').click();
-          $('#fi').onchange=async e=>{
-           const f=e.target.files[0];e.target.value='';if(!f||busy)return;
-           try{
-            const m=JSON.parse(await f.text());if(!m.uni||!m.bi||!m.tri)throw 0;
-            m.qa=m.qa||[];m.df=m.df||{};m.docs=m.docs||[];m.pas=m.pas||[];m.lines=m.lines||[];m.nd=m.nd||m.docs.length+1;M=m;busy=true;
-            EMB=m.emb?unpackEmb(m.emb):null;NN=m.nn?unpackNN(m.nn):null;PV=null;conv.ent='';
-            await buildIX((d,n)=>{$('#ks').textContent='Baue Index '+d+'/'+n});
-            if(!EMB)await trainEmb();await buildPV();
-            await save();busy=false;head();stats();toast('Modell importiert ✓');
-           }catch(x){busy=false;toast('Keine gültige Flora-Datei')}
-          };
-          $('#rs').onclick=()=>{if(!busy&&confirm('Alles vergessen und nur das Grundwissen laden?'))boot(true)};
-
-          async function boot(force){
-           $('#boot').style.display='flex';busy=true;conv.ent='';
-           const B=(l,d,n,x)=>{prog('#bp',d,n);$('#bt').textContent=l+' '+d+'/'+n+(x?' · '+x:'')};
-           if(!force){try{M=(await idbGet('model'))||null}catch(e){M=null}}
-           if(M&&!M.pas)M=null;
-           if(!M||force){
-            M=empty();newIX();EMB=null;NN=null;PV=null;
-            const tot=BASE_DOCS.length+1;let i=0;
-            for(const [t,x] of BASE_DOCS){
-             const k=i;await learnDoc(t,x,(d,n)=>{prog('#bp',k+d/n,tot);$('#bt').textContent='Grundwissen „'+t+'“: Satz '+d+' von '+n});i++;
-            }
-            await learn(BASE_TEXT,(d,n)=>{prog('#bp',i+d/n,tot);$('#bt').textContent='Sprachtraining: Zeile '+d+' von '+n});
-            await rebuildSem((l,d,n,x)=>B(l,d,n,x));
-            await trainNN((d,n,x)=>B('Neuronales Netz',d,n,x));
-            await save();
-           }else{
-            M.lines=M.lines||[];
-            await buildIX((d,n)=>B('Wissensindex',d,n));
-            EMB=M.emb?unpackEmb(M.emb):null;NN=M.nn?unpackNN(M.nn):null;
-            if(!EMB&&M.pas.length)await trainEmb((d,n,x)=>B('Embeddings',d,n,x));
-            await buildPV((d,n)=>B('Satz-Vektoren',d,n));
-            if(!NN){await trainNN((d,n,x)=>B('Neuronales Netz',d,n,x));await save()}
-           }
-           $('#boot').style.display='none';busy=false;head();stats();docList();chips();
-           if(!log.children.length)bubble('fl','Hi, ich bin Flora. Lade im Tab „Wissen“ Texte hoch und stell mir danach Fragen dazu.');
-          }
-          boot(false);
+          boot();
           </script></body></html>
           EOF
 
@@ -736,7 +486,7 @@ jobs:
         run: |
           npm init -y
           npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6 @capacitor/share@6
-          npx cap init Flora com.flora.ai --web-dir=www
+          npx cap init "Flora GPT" com.flora.ai --web-dir=www
           npx cap add android
           npx cap sync android
 
@@ -749,5 +499,5 @@ jobs:
       - name: APK hochladen
         uses: actions/upload-artifact@v4
         with:
-          name: Flora-APK
+          name: Flora-GPT-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
